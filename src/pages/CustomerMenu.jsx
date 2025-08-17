@@ -14,9 +14,11 @@ import {
   Star,
   Plus,
   Minus,
-  AlertCircle
+  AlertCircle,
+  X
 } from "lucide-react";
 import { MenuItem, Order, customerAuthService } from "@/api";
+import CustomerCheckout from "@/components/customer/CustomerCheckout";
 
 export default function CustomerMenu() {
   const [searchParams] = useSearchParams();
@@ -81,7 +83,7 @@ export default function CustomerMenu() {
         try {
           const currentUser = await customerAuthService.getCurrentUser();
           if (currentUser) {
-            setUser(currentUser);
+          setUser(currentUser);
             setIsLoading(false);
             return;
           }
@@ -91,24 +93,24 @@ export default function CustomerMenu() {
         }
       }
 
-      // Check for guest session
-      const guestSession = localStorage.getItem('guestSession');
-      const guestTimestamp = localStorage.getItem('guestTimestamp');
+        // Check for guest session
+        const guestSession = localStorage.getItem('guestSession');
+        const guestTimestamp = localStorage.getItem('guestTimestamp');
       const guestVendorId = localStorage.getItem('guestVendorId');
       const guestTableNumber = localStorage.getItem('guestTableNumber');
-      
+        
       if (guestSession && guestTimestamp && guestVendorId === vendorId && guestTableNumber === tableNumber) {
-        // Check if guest session is still valid (24 hours)
-        const sessionAge = Date.now() - parseInt(guestTimestamp);
-        if (sessionAge < 24 * 60 * 60 * 1000) {
+          // Check if guest session is still valid (24 hours)
+          const sessionAge = Date.now() - parseInt(guestTimestamp);
+          if (sessionAge < 24 * 60 * 60 * 1000) {
           setIsGuestMode(true);
-          setUser({ type: 'guest', name: 'Guest User' });
+            setUser({ type: 'guest', name: 'Guest User' });
           setIsLoading(false);
           return;
-        } else {
-          // Session expired, clear it
-          localStorage.removeItem('guestSession');
-          localStorage.removeItem('guestTimestamp');
+          } else {
+            // Session expired, clear it
+            localStorage.removeItem('guestSession');
+            localStorage.removeItem('guestTimestamp');
           localStorage.removeItem('guestVendorId');
           localStorage.removeItem('guestTableNumber');
         }
@@ -203,18 +205,24 @@ export default function CustomerMenu() {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
+  const [showCheckout, setShowCheckout] = useState(false);
+
   const handleCheckout = () => {
     if (cart.length === 0) return;
     
-    // Navigate to checkout page with cart data
-    navigate('/customer-checkout', { 
-      state: { 
-        cart, 
-        vendorId, 
-        tableNumber,
-        user 
-      } 
-    });
+    // Show checkout modal instead of navigating
+    setShowCheckout(true);
+    setShowCart(false);
+  };
+
+  const handleCheckoutSuccess = (orderData) => {
+    // Clear cart and close modals
+    setCart([]);
+    setShowCheckout(false);
+    setShowCart(false);
+    
+    // Show order confirmation or redirect
+    setCurrentOrder(orderData);
   };
 
   const handleGoogleAuthCallback = async (token, userData) => {
@@ -284,8 +292,8 @@ export default function CustomerMenu() {
   const handleLogout = () => {
     if (isGuestMode) {
       // Clear guest session
-      localStorage.removeItem('guestSession');
-      localStorage.removeItem('guestTimestamp');
+    localStorage.removeItem('guestSession');
+    localStorage.removeItem('guestTimestamp');
       localStorage.removeItem('guestVendorId');
       localStorage.removeItem('guestTableNumber');
     } else {
@@ -348,7 +356,7 @@ export default function CustomerMenu() {
                 <p className="text-sm text-slate-600">Table {tableNumber}</p>
               </div>
             </div>
-
+            
             {/* User Actions */}
             <div className="flex items-center gap-4">
               {user ? (
@@ -372,8 +380,8 @@ export default function CustomerMenu() {
                   onClick={handleAuthRedirect}
                 >
                   <User className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
+                    Sign In
+                  </Button>
               )}
 
               {/* Cart Button */}
@@ -410,9 +418,9 @@ export default function CustomerMenu() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
-              </div>
-            </div>
-            
+        </div>
+      </div>
+
             <div className="flex gap-2">
               {categories.map((category) => (
                 <Button
@@ -515,86 +523,148 @@ export default function CustomerMenu() {
         )}
       </main>
 
-      {/* Cart Sidebar */}
-      {showCart && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
-            <div className="flex flex-col h-full">
-              {/* Cart Header */}
-              <div className="flex items-center justify-between p-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-900">Your Cart</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowCart(false)}
-                >
-                  ×
-                </Button>
+      {/* Floating Cart Button (Uber Eats Style) */}
+      {cart.length > 0 && !showCart && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+          <Button
+            onClick={() => setShowCart(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-6 py-3 rounded-full h-12 flex items-center gap-3 min-w-[200px] justify-between transition-all duration-300 hover:scale-105"
+          >
+            <div className="flex items-center gap-2">
+              <div className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">
+                <span className="text-sm font-bold">{cart.reduce((sum, item) => sum + item.quantity, 0)}</span>
               </div>
+              <span className="font-medium">View Cart</span>
+            </div>
+            <span className="font-bold">${getCartTotal().toFixed(2)}</span>
+          </Button>
+        </div>
+      )}
 
-              {/* Cart Items */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {cart.length === 0 ? (
-                  <div className="text-center py-8">
-                    <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                    <p className="text-slate-500">Your cart is empty</p>
-                  </div>
-                ) : (
-                  cart.map((item) => (
-                    <div key={item._id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+            {/* Enhanced Cart Modal */}
+      {showCart && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center">
+          <div className="bg-white w-full max-w-md h-[85vh] rounded-t-2xl flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-300">
+            {/* Cart Header */}
+            <div className="border-b border-slate-200 p-4 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Your Order</h2>
+                <p className="text-sm text-slate-600">Table {tableNumber} • {cart.reduce((sum, item) => sum + item.quantity, 0)} items</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowCart(false)}
+                className="h-10 w-10 hover:bg-white/50 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Cart Items */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {cart.length === 0 ? (
+                <div className="text-center py-12">
+                  <ShoppingCart className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500 text-lg">Your cart is empty</p>
+                  <p className="text-slate-400 text-sm">Add some delicious items to get started!</p>
+                </div>
+              ) : (
+                cart.map((item) => (
+                  <div key={item._id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <h3 className="font-medium text-slate-900">{item.name}</h3>
-                        <p className="text-sm text-slate-600">${item.price}</p>
+                        <h3 className="font-semibold text-slate-900 text-lg">{item.name}</h3>
+                        <p className="text-slate-600 text-sm mt-1 line-clamp-2">{item.description}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-lg font-bold text-blue-600">${item.price}</span>
+                          <span className="text-sm text-slate-500">each</span>
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 bg-slate-100 rounded-full p-1">
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => removeFromCart(item._id)}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </Button>
                         
-                        <span className="w-8 text-center font-medium">
+                        <span className="w-8 text-center font-bold text-slate-900 text-lg">
                           {item.quantity}
                         </span>
                         
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => addToCart(item)}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 rounded-full hover:bg-green-100 hover:text-green-600 transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
                       </div>
+                      
+                      <div className="text-right">
+                        <div className="font-bold text-slate-900 text-lg">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
+                      </div>
                     </div>
-                  ))
-                )}
-              </div>
+                  </div>
+                ))
+              )}
+            </div>
 
-              {/* Cart Footer */}
-              {cart.length > 0 && (
-                <div className="border-t border-slate-200 p-4 space-y-3">
-                  <div className="flex justify-between items-center text-lg font-semibold">
-                    <span>Total:</span>
-                    <span>${getCartTotal().toFixed(2)}</span>
+            {/* Cart Summary & Checkout */}
+            {cart.length > 0 && (
+              <div className="border-t border-slate-200 bg-slate-50 p-4 space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-slate-700">
+                    <span>Subtotal ({cart.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
+                    <span className="font-semibold">${getCartTotal().toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-700">
+                    <span>Estimated time</span>
+                    <span className="font-semibold">20-30 min</span>
+                  </div>
+                </div>
+                
+                <div className="border-t border-slate-300 pt-3">
+                  <div className="flex justify-between items-center text-xl font-bold text-slate-900 mb-4">
+                    <span>Total</span>
+                    <span className="text-blue-600">${getCartTotal().toFixed(2)}</span>
                   </div>
                   
                   <Button
                     onClick={handleCheckout}
-                    className="w-full h-11"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
                     disabled={cart.length === 0}
                   >
-                    Proceed to Checkout
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Go to Checkout
                   </Button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        </div>
+      </div>
+      )}
+
+      {/* Enhanced Checkout Modal */}
+      {showCheckout && (
+        <CustomerCheckout
+          cart={cart}
+          tableNumber={tableNumber}
+          total={getCartTotal()}
+          user={user}
+          vendorId={vendorId}
+          onClose={() => setShowCheckout(false)}
+          onSuccess={handleCheckoutSuccess}
+        />
       )}
     </div>
   );

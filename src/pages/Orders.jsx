@@ -1,47 +1,123 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Clock } from "lucide-react";
+import { Clock, AlertCircle, RefreshCw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import OrderCard from "../components/orders/OrderCard";
 import OrderStats from "../components/orders/OrderStats";
-
-// --- Sample Data ---
-const sampleOrders = [
-    { id: '1', created_date: new Date(Date.now() - 5 * 60000).toISOString(), table_number: '5', customer_first_name: 'John', customer_last_name: 'Doe', total_amount: 35.50, status: 'pending', items: [{ quantity: 1, name: 'Truffle Pasta', price: 22.50 }, { quantity: 1, name: 'Red Wine', price: 13.00 }] },
-    { id: '2', created_date: new Date(Date.now() - 10 * 60000).toISOString(), table_number: '12', customer_first_name: 'Jane', customer_last_name: 'Smith', total_amount: 52.00, status: 'confirmed', items: [{ quantity: 2, name: 'Ribeye Steak', price: 26.00 }] },
-    { id: '3', created_date: new Date(Date.now() - 20 * 60000).toISOString(), table_number: '3', customer_first_name: 'Alice', customer_last_name: 'Johnson', total_amount: 21.75, status: 'preparing', items: [{ quantity: 1, name: 'Caesar Salad', price: 12.00 }, { quantity: 1, name: 'Iced Tea', price: 4.75 }] },
-    { id: '4', created_date: new Date(Date.now() - 30 * 60000).toISOString(), table_number: '8', customer_first_name: 'Bob', customer_last_name: 'Williams', total_amount: 88.00, status: 'ready', items: [{ quantity: 1, name: 'Sushi Platter', price: 88.00 }] },
-    { id: '5', created_date: new Date(Date.now() - 60 * 60000).toISOString(), table_number: '2', customer_first_name: 'Charlie', customer_last_name: 'Brown', total_amount: 15.00, status: 'served', items: [{ quantity: 1, name: 'Espresso', price: 4.00 }, { quantity: 1, name: 'Cheesecake', price: 11.00 }] },
-    { id: '6', created_date: new Date(Date.now() - 2 * 60 * 60000).toISOString(), table_number: '7', customer_first_name: 'Diana', customer_last_name: 'Prince', total_amount: 45.00, status: 'cancelled', items: [{ quantity: 2, name: 'Margarita Pizza', price: 22.50 }] },
-];
-// --- End Sample Data ---
+import { Order, authService } from "@/api";
 
 export default function Orders() {
-  const [orders, setOrders] = useState(sampleOrders);
-  const [isLoading, setIsLoading] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [vendor, setVendor] = useState(null);
+
+  // Check vendor authentication and load initial data
+  useEffect(() => {
+    checkVendorAuth();
+  }, []);
+
+  // Load orders when vendor changes
+  useEffect(() => {
+    if (vendor) {
+      loadOrders();
+    }
+  }, [vendor]);
+
+  const checkVendorAuth = async () => {
+    try {
+      const isAuth = authService.isAuthenticated();
+      if (!isAuth) {
+        setError("Please login as a vendor to view orders");
+        setIsLoading(false);
+        return;
+      }
+
+      const currentVendor = await authService.getCurrentUser();
+      if (!currentVendor || currentVendor.userType !== 'vendor') {
+        setError("Access denied. Vendor account required.");
+        setIsLoading(false);
+        return;
+      }
+
+      setVendor(currentVendor);
+      // loadOrders will be called by the useEffect when vendor is set
+    } catch (error) {
+      console.error("Error checking vendor auth:", error);
+      setError("Failed to authenticate vendor");
+      setIsLoading(false);
+    }
+  };
 
   const loadOrders = async () => {
-    // This is a placeholder for your API call.
-    console.log("Refreshing orders (placeholder)...");
+    if (!vendor) return;
+
+    console.log("Loading orders for vendor:", vendor.name);
     setIsLoading(true);
-    // await yourApi.getOrders();
-    // setOrders(fetchedOrders);
-    setTimeout(() => setIsLoading(false), 500); // Simulate network delay
+    setError("");
+
+    try {
+      // Get all orders for this vendor
+      const response = await Order.list();
+      
+      if (response.success) {
+        // Transform the data to match the expected format
+        const transformedOrders = response.data.map(order => ({
+          id: order._id,
+          created_date: order.createdAt,
+          table_number: order.tableNumber.toString(),
+          customer_first_name: order.customerId?.firstName || 'Guest',
+          customer_last_name: order.customerId?.lastName || 'Customer',
+          total_amount: order.totalAmount,
+          status: order.status,
+          items: order.items || [],
+          notes: order.notes,
+          estimatedPreparationTime: order.estimatedPreparationTime,
+          actualPreparationTime: order.actualPreparationTime,
+          paymentStatus: order.paymentStatus
+        }));
+
+        setOrders(transformedOrders);
+        console.log(`Loaded ${transformedOrders.length} orders for ${vendor.name}`);
+      } else {
+        setError(response.message || "Failed to load orders");
+      }
+    } catch (error) {
+      console.error("Error loading orders:", error);
+      setError("Failed to load orders. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleStatusUpdate = async (orderId, newStatus) => {
-    // This function is now a placeholder.
-    // Your API call to UPDATE an order status would go here.
-    console.log(`Updating order ${orderId} to ${newStatus} (placeholder)`);
-    setOrders(prevOrders => 
-      prevOrders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
-      )
-    );
+    try {
+      console.log(`Updating order ${orderId} to ${newStatus}`);
+      
+      // Call backend API to update order status
+      const response = await Order.updateStatus(orderId, newStatus);
+      
+      if (response.success) {
+        // Update local state immediately for better UX
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.id === orderId ? { ...order, status: newStatus } : order
+          )
+        );
+        
+        console.log(`Successfully updated order ${orderId} to ${newStatus}`);
+      } else {
+        console.error("Failed to update order status:", response.message);
+        setError(`Failed to update order status: ${response.message}`);
+      }
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      setError("Failed to update order status. Please try again.");
+    }
   };
 
-  const statuses = ["all", "pending", "confirmed", "preparing", "ready", "served", "cancelled"];
+  const statuses = ["all", "pending", "preparing", "ready", "served", "cancelled"];
 
   const statusCounts = statuses.reduce((acc, status) => {
     if (status === "all") {
@@ -52,6 +128,39 @@ export default function Orders() {
     return acc;
   }, {});
   
+  // Show loading state for initial load
+  if (isLoading && !vendor) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-slate-600">Loading orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error && !vendor) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Access Denied</h2>
+            <p className="text-slate-600 mb-4">{error}</p>
+            <Button onClick={checkVendorAuth} variant="outline">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -60,8 +169,14 @@ export default function Orders() {
             Order Management
           </h1>
           <p className="text-slate-600">
-            Track and manage all customer orders in real-time
+            Track and manage all customer orders for{" "}
+            <span className="font-semibold text-blue-600">{vendor?.name}</span>
           </p>
+          {orders.length > 0 && (
+            <p className="text-sm text-slate-500 mt-1">
+              {orders.length} total orders
+            </p>
+          )}
         </div>
         <div className="flex gap-3">
           <Button 
@@ -70,11 +185,29 @@ export default function Orders() {
             className="gap-2"
             disabled={isLoading}
           >
-            <Clock className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             {isLoading ? 'Refreshing...' : 'Refresh'}
           </Button>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            <span>{error}</span>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => setError("")}
+              className="ml-auto text-red-700 hover:text-red-800"
+            >
+              ×
+            </Button>
+          </div>
+        </div>
+      )}
 
       <OrderStats orders={orders} />
 
@@ -107,7 +240,17 @@ export default function Orders() {
             </div>
             {statusCounts[status] === 0 && (
               <div className="text-center py-12 text-slate-500">
-                <p>No orders with status "{status}"</p>
+                {status === "all" ? (
+                  <div>
+                    <Clock className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <p className="text-lg font-medium text-slate-600 mb-2">No orders yet</p>
+                    <p className="text-slate-500">
+                      Orders from customers will appear here once they start placing orders.
+                    </p>
+                  </div>
+                ) : (
+                  <p>No orders with status "{status}"</p>
+                )}
               </div>
             )}
           </TabsContent>

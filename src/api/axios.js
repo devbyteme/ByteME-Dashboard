@@ -12,11 +12,11 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Check if this is a customer-related request
-    // Customer requests: /auth/user/*, /customer/*, /order/*
-    // Vendor requests: /auth/vendor/*, /menu/*, /tables/*, /analytics/*
+    // Customer requests: /auth/user/*, /customer/*, POST /orders (placing orders)
+    // Vendor requests: /auth/vendor/*, /menu/*, /tables/*, /analytics/*, GET /orders (managing orders)
     const isCustomerRequest = config.url.includes('/auth/user') || 
                              config.url.includes('/customer') ||
-                             config.url.includes('/order');
+                             (config.url.includes('/orders') && config.method?.toLowerCase() === 'post');
     
     let token;
     if (isCustomerRequest) {

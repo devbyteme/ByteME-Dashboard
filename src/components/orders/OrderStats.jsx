@@ -9,7 +9,7 @@ export default function OrderStats({ orders }) {
   );
   
   const pendingOrders = orders.filter(order => 
-    order.status === 'pending' || order.status === 'confirmed'
+    order.status === 'pending' || order.status === 'preparing'
   ).length;
   
   const preparingOrders = orders.filter(order => 

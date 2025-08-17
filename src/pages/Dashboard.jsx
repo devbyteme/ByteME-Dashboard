@@ -20,7 +20,7 @@ const sampleOrders = [
   { id: '1', created_date: new Date().toISOString(), total_amount: 35.50, status: 'preparing', table_number: '5', items: [{ quantity: 1, name: 'Truffle Pasta' }, { quantity: 1, name: 'Red Wine' }] },
   { id: '2', created_date: new Date().toISOString(), total_amount: 52.00, status: 'pending', table_number: '12', items: [{ quantity: 2, name: 'Ribeye Steak' }, { quantity: 2, name: 'Coke' }] },
   { id: '3', created_date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), total_amount: 21.75, status: 'served', table_number: '3', items: [{ quantity: 1, name: 'Caesar Salad' }] },
-  { id: '4', created_date: new Date().toISOString(), total_amount: 88.00, status: 'confirmed', table_number: '8', items: [{ quantity: 4, name: 'Sushi Platter' }] },
+  { id: '4', created_date: new Date().toISOString(), total_amount: 88.00, status: 'preparing', table_number: '8', items: [{ quantity: 4, name: 'Sushi Platter' }] },
 ];
 const sampleMenuItems = [
   { id: '1', name: 'Ribeye Steak', price: 26.00, available: true, category: 'mains' },
@@ -49,7 +49,7 @@ export default function Dashboard() {
 
   const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
   const averageOrderValue = todayOrders.length > 0 ? todayRevenue / todayOrders.length : 0;
-  const pendingOrders = orders.filter(order => order.status === 'pending' || order.status === 'confirmed').length;
+  const pendingOrders = orders.filter(order => order.status === 'pending' || order.status === 'preparing').length;
 
   return (
     <div className="p-6 space-y-8">

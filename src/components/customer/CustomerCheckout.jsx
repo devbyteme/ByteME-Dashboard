@@ -40,21 +40,21 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
     try {
       // Create order data for backend API
       const orderData = {
-        tableNumber: tableNumber,
-        vendorId: vendorId,
+        tableNumber: parseInt(tableNumber),
+        customerId: user?._id || null,
         items: cart.map(item => ({
-          menuItemId: item.id,
-          name: item.name,
-          price: item.price,
+          menuItemId: item._id, // Use _id as the backend expects menuItemId
           quantity: item.quantity,
           notes: item.notes || ""
         })),
-        totalAmount: getFinalTotal(),
-        notes: formData.special_requests || "",
-        paymentMethod: formData.payment_method,
-        estimatedPreparationTime: 20, // Default 20 minutes
-        customerPhone: formData.customer_phone || "",
-        dietaryRequirements: formData.dietary_requirements || ""
+        notes: [
+          formData.special_requests,
+          formData.dietary_requirements && `Dietary: ${formData.dietary_requirements}`,
+          formData.customer_phone && `Phone: ${formData.customer_phone}`,
+          `Payment: ${formData.payment_method}`,
+          formData.tip_percentage > 0 && `Tip: ${formData.tip_percentage}%`,
+          formData.custom_tip && `Custom tip: $${formData.custom_tip}`
+        ].filter(Boolean).join(' | ')
       };
       
       console.log("Submitting order:", orderData);
@@ -157,7 +157,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
               <div className="bg-slate-50 rounded-lg p-4 space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-600">Name</span>
-                  <span className="font-medium text-slate-900">{user?.full_name || "Guest"}</span>
+                  <span className="font-medium text-slate-900">{user?.firstName || "Guest"}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-600">Email</span>
@@ -221,26 +221,68 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-semibold text-slate-900">Payment Method</h3>
-              <RadioGroup 
-                value={formData.payment_method} 
-                onValueChange={(value) => setFormData({...formData, payment_method: value})}
-              >
-                <div className="flex items-center space-x-2 p-3 border rounded-lg bg-white">
-                  <RadioGroupItem value="cash" id="cash" />
-                  <Label htmlFor="cash" className="flex items-center gap-2 cursor-pointer flex-1">
-                    <Banknote className="w-4 h-4" />
-                    Pay with Cash
-                  </Label>
+              <h3 className="font-semibold text-slate-900 text-lg">Payment Method</h3>
+              <div className="space-y-3">
+                <div 
+                  onClick={() => setFormData({...formData, payment_method: 'cash'})}
+                  className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    formData.payment_method === 'cash' 
+                      ? 'border-blue-500 bg-blue-50 shadow-md' 
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
+                    formData.payment_method === 'cash' ? 'border-blue-500' : 'border-slate-300'
+                  }`}>
+                    {formData.payment_method === 'cash' && (
+                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1 flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      formData.payment_method === 'cash' ? 'bg-blue-100' : 'bg-slate-100'
+                    }`}>
+                      <Banknote className={`w-5 h-5 ${
+                        formData.payment_method === 'cash' ? 'text-blue-600' : 'text-slate-600'
+                      }`} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">Pay with Cash</p>
+                      <p className="text-sm text-slate-600">Pay when your order arrives</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg bg-white">
-                  <RadioGroupItem value="card" id="card" />
-                  <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer flex-1">
-                    <CreditCard className="w-4 h-4" />
-                    Pay with Card
-                  </Label>
+
+                <div 
+                  onClick={() => setFormData({...formData, payment_method: 'card'})}
+                  className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    formData.payment_method === 'card' 
+                      ? 'border-blue-500 bg-blue-50 shadow-md' 
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
+                    formData.payment_method === 'card' ? 'border-blue-500' : 'border-slate-300'
+                  }`}>
+                    {formData.payment_method === 'card' && (
+                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1 flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      formData.payment_method === 'card' ? 'bg-blue-100' : 'bg-slate-100'
+                    }`}>
+                      <CreditCard className={`w-5 h-5 ${
+                        formData.payment_method === 'card' ? 'text-blue-600' : 'text-slate-600'
+                      }`} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">Pay with Card</p>
+                      <p className="text-sm text-slate-600">Secure online payment</p>
+                    </div>
+                  </div>
                 </div>
-              </RadioGroup>
+              </div>
             </div>
             
             <div>
@@ -257,10 +299,20 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
             
             <Button 
               type="submit" 
-              className="w-full h-12 text-lg"
+              className="w-full h-14 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] disabled:hover:scale-100"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Placing Order..." : `Place Order - $${getFinalTotal().toFixed(2)}`}
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Placing Order...
+                </div>
+              ) : (
+                <div className="flex items-center justify-between w-full">
+                  <span>Place Order</span>
+                  <span className="font-bold">${getFinalTotal().toFixed(2)}</span>
+                </div>
+              )}
             </Button>
           </form>
         </CardContent>
