@@ -1,5 +1,6 @@
 import api from './axios';
 import authService from './authService';
+import customerAuthService from './customerAuthService';
 import { customerService } from './customerService';
 import { menuService } from './menuService';
 import { orderService } from './orderService';
@@ -80,6 +81,7 @@ export const Table = {
 export {
   api,
   authService,
+  customerAuthService,
   customerService,
   menuService,
   orderService,

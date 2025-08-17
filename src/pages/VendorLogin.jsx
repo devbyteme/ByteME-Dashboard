@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Crown, ArrowRight, Loader2, CheckCircle, AlertCircle, Mail, Lock, Chrome } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { User } from "@/api";
+import { authService } from "@/api";
 
 export default function VendorLogin() {
   const navigate = useNavigate();
@@ -23,34 +23,64 @@ export default function VendorLogin() {
     // Check for Google OAuth callback parameters
     const token = searchParams.get('token');
     const googleAuth = searchParams.get('googleAuth');
+    const userData = searchParams.get('userData');
     const error = searchParams.get('error');
 
     if (error) {
       setError(error);
     } else if (token && googleAuth) {
       // Handle successful Google OAuth login
-      handleGoogleAuthSuccess(token);
+      handleGoogleAuthSuccess(token, userData);
     }
   }, [searchParams]);
 
-  const handleGoogleAuthSuccess = async (token) => {
+  const handleGoogleAuthSuccess = async (token, userData) => {
     try {
-      // Store the token
-      localStorage.setItem('authToken', token);
+      console.log('🔐 VendorLogin: Google OAuth success, token received');
       
-      // Get user profile
-      const user = await User.me();
-      localStorage.setItem('user', JSON.stringify(user));
+      let user;
+      if (userData) {
+        // Parse user data from URL parameters
+        try {
+          user = JSON.parse(decodeURIComponent(userData));
+          console.log('🔐 VendorLogin: User data parsed from URL:', user.email);
+        } catch (parseError) {
+          console.error('Error parsing user data from URL:', parseError);
+          user = null;
+        }
+      }
       
-      setSuccess("Google login successful! Redirecting to dashboard...");
+      // Store the token and user data using the correct vendor storage keys
+      authService.setAuth(token, user);
       
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
+      if (user) {
+        console.log('🔐 VendorLogin: Google OAuth completed successfully with user data');
+        setSuccess("Google login successful! Redirecting to dashboard...");
+        
+        // Redirect to dashboard after a short delay
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        // Fallback: try to get user profile from API
+        console.log('🔐 VendorLogin: No user data in URL, fetching from API...');
+        const apiUser = await authService.getCurrentUser();
+        if (apiUser) {
+          console.log('🔐 VendorLogin: User profile loaded from API successfully');
+          setSuccess("Google login successful! Redirecting to dashboard...");
+          
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 2000);
+        } else {
+          throw new Error('Failed to load user profile');
+        }
+      }
     } catch (error) {
       console.error('Error handling Google auth success:', error);
       setError("Failed to complete Google authentication");
+      // Clear any partial auth data
+      authService.clearAuth();
     }
   };
 
@@ -69,7 +99,7 @@ export default function VendorLogin() {
     setSuccess("");
 
     try {
-      const response = await User.loginVendor(formData);
+      const response = await authService.loginVendor(formData);
       
       if (response.success) {
         setSuccess("Login successful! Redirecting to dashboard...");

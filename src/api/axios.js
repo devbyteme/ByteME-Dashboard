@@ -11,9 +11,40 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
+    // Check if this is a customer-related request
+    // Customer requests: /auth/user/*, /customer/*, /order/*
+    // Vendor requests: /auth/vendor/*, /menu/*, /tables/*, /analytics/*
+    const isCustomerRequest = config.url.includes('/auth/user') || 
+                             config.url.includes('/customer') ||
+                             config.url.includes('/order');
+    
+    let token;
+    if (isCustomerRequest) {
+      // Use customer token for customer-related requests
+      token = localStorage.getItem('customerAuthToken');
+      console.log('🔗 Axios: Customer request to', config.url, 'Token:', !!token);
+    } else {
+      // Use vendor token for vendor-related requests
+      token = localStorage.getItem('vendorAuthToken');
+      console.log('🔗 Axios: Vendor request to', config.url, 'Token:', !!token);
+    }
+    
+    // Log the request categorization for debugging
+    console.log('🔗 Axios: Request categorization:', {
+      url: config.url,
+      isCustomerRequest,
+      tokenType: isCustomerRequest ? 'customerAuthToken' : 'vendorAuthToken',
+      hasToken: !!token
+    });
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔗 Axios: Authorization header added for', config.url);
+    } else {
+      console.log('🔗 Axios: No token found for request to', config.url);
+      console.log('🔗 Axios: Available tokens:');
+      console.log('  - customerAuthToken:', !!localStorage.getItem('customerAuthToken'));
+      console.log('  - vendorAuthToken:', !!localStorage.getItem('vendorAuthToken'));
     }
     return config;
   },

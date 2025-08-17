@@ -3,35 +3,38 @@ import api from './axios';
 class AuthService {
   // Check if user is authenticated
   isAuthenticated() {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('vendorAuthToken');
+    console.log('🔐 AuthService: Checking vendor authentication - token exists:', !!token);
     return !!token;
   }
 
   // Get stored token
   getToken() {
-    return localStorage.getItem('authToken');
+    return localStorage.getItem('vendorAuthToken');
   }
 
   // Store authentication data
   setAuth(token, user) {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    console.log('🔐 AuthService: Setting vendor auth data - token length:', token ? token.length : 0);
+    localStorage.setItem('vendorAuthToken', token);
+    localStorage.setItem('vendorUser', JSON.stringify(user));
+    console.log('🔐 AuthService: Vendor auth data stored successfully');
   }
 
   // Clear authentication data
   clearAuth() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem('vendorAuthToken');
+    localStorage.removeItem('vendorUser');
   }
 
   // Get current user from localStorage
   getCurrentUser() {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem('vendorUser');
     if (userStr) {
       try {
         return JSON.parse(userStr);
       } catch (error) {
-        console.error('Error parsing user data:', error);
+        console.error('Error parsing vendor user data:', error);
         return null;
       }
     }
@@ -114,7 +117,7 @@ class AuthService {
         const userData = response.data;
         userData.userType = userData.userType || 'vendor'; // Default to vendor for existing users
         
-        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('vendorUser', JSON.stringify(userData));
         return userData;
       }
       
@@ -155,14 +158,14 @@ class AuthService {
       
       if (response.success) {
         // Update stored token
-        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('vendorAuthToken', response.token);
         return response.token;
       }
       
       return null;
     } catch (error) {
       throw error;
-    }
+      }
   }
 }
 

@@ -13,6 +13,7 @@ import UserRegistration from "./UserRegistration";
 import UserLogin from "./UserLogin";
 import QRScanner from "./QRScanner";
 import CustomerMenu from "./CustomerMenu";
+import CustomerAuthPage from "./CustomerAuthPage";
 import CustomerOrder from "./CustomerOrder";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -27,8 +28,8 @@ export default function PagesContent() {
       <Route path="/user-registration" element={<Layout currentPageName="UserRegistration"><UserRegistration /></Layout>} />
       <Route path="/user-login" element={<Layout currentPageName="UserLogin"><UserLogin /></Layout>} />
       <Route path="/qr-scanner" element={<Layout currentPageName="QRScanner"><QRScanner /></Layout>} />
-      <Route path="/customer-menu" element={<Layout currentPageName="CustomerMenu"><CustomerMenu /></Layout>} />
-      <Route path="/customer-order" element={<Layout currentPageName="CustomerOrder"><CustomerOrder /></Layout>} />
+      <Route path="/customer-menu" element={<CustomerMenu />} />
+      <Route path="/customer-auth" element={<CustomerAuthPage />} />
       
       {/* Protected Dashboard Routes */}
       <Route path="/dashboard" element={
