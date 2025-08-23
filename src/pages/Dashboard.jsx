@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -8,38 +8,122 @@ import {
   ShoppingCart,
   ChefHat,
   DollarSign,
-  Clock
+  Clock,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import StatsCard from "../components/dashboard/StatsCard";
 import RecentOrders from "../components/dashboard/RecentOrders";
 import QuickActions from "../components/dashboard/QuickActions";
-
-// --- Sample Data ---
-const sampleOrders = [
-  { id: '1', created_date: new Date().toISOString(), total_amount: 35.50, status: 'preparing', table_number: '5', items: [{ quantity: 1, name: 'Truffle Pasta' }, { quantity: 1, name: 'Red Wine' }] },
-  { id: '2', created_date: new Date().toISOString(), total_amount: 52.00, status: 'pending', table_number: '12', items: [{ quantity: 2, name: 'Ribeye Steak' }, { quantity: 2, name: 'Coke' }] },
-  { id: '3', created_date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), total_amount: 21.75, status: 'served', table_number: '3', items: [{ quantity: 1, name: 'Caesar Salad' }] },
-  { id: '4', created_date: new Date().toISOString(), total_amount: 88.00, status: 'preparing', table_number: '8', items: [{ quantity: 4, name: 'Sushi Platter' }] },
-];
-const sampleMenuItems = [
-  { id: '1', name: 'Ribeye Steak', price: 26.00, available: true, category: 'mains' },
-  { id: '2', name: 'Caesar Salad', price: 12.00, available: true, category: 'appetizers' },
-  { id: '3', name: 'Tiramisu', price: 8.00, available: false, category: 'desserts' },
-];
-const sampleTables = [
-  { id: '1', table_number: 'T1', capacity: 2 },
-  { id: '2', table_number: 'T2', capacity: 4 },
-  { id: '3', table_number: 'P1', capacity: 6 },
-];
-// --- End Sample Data ---
+import { Order, MenuItem, Table, authService } from "@/api";
 
 export default function Dashboard() {
-  // Using static data as the backend is disconnected
-  const orders = sampleOrders;
-  const menuItems = sampleMenuItems;
-  const tables = sampleTables;
-  const isLoading = false; // Never loading
+  const [orders, setOrders] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [tables, setTables] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [vendor, setVendor] = useState(null);
+
+  useEffect(() => {
+    checkAuthAndLoadData();
+  }, []);
+
+  const checkAuthAndLoadData = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      // Check if vendor is authenticated
+      const isAuth = authService.isAuthenticated();
+      if (!isAuth) {
+        setError("Please login as a vendor to view dashboard");
+        setIsLoading(false);
+        return;
+      }
+
+      const currentVendor = await authService.getCurrentUser();
+      if (!currentVendor || currentVendor.userType !== 'vendor') {
+        setError("Access denied. Vendor account required.");
+        setIsLoading(false);
+        return;
+      }
+
+      setVendor(currentVendor);
+
+      // Load all dashboard data in parallel
+      await Promise.all([
+        loadOrders(),
+        loadMenuItems(),
+        loadTables()
+      ]);
+
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+      setError("Failed to load dashboard data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadOrders = async () => {
+    try {
+      const response = await Order.list();
+      if (response.success) {
+        // Transform the data to match the expected format
+        const transformedOrders = response.data.map(order => ({
+          id: order._id,
+          created_date: order.createdAt,
+          table_number: order.tableNumber?.toString() || 'N/A',
+          customer_first_name: order.customerId?.firstName || 'Guest',
+          customer_last_name: order.customerId?.lastName || 'Customer',
+          total_amount: order.totalAmount,
+          status: order.status,
+          items: order.items || [],
+          notes: order.notes,
+          estimatedPreparationTime: order.estimatedPreparationTime,
+          actualPreparationTime: order.actualPreparationTime,
+          paymentStatus: order.paymentStatus
+        }));
+        setOrders(transformedOrders);
+        console.log(`Loaded ${transformedOrders.length} orders`);
+      } else {
+        console.error("Failed to load orders:", response.message);
+      }
+    } catch (error) {
+      console.error("Error loading orders:", error);
+    }
+  };
+
+  const loadMenuItems = async () => {
+    try {
+      const response = await MenuItem.list();
+      if (response.success) {
+        setMenuItems(response.data);
+        console.log(`Loaded ${response.data.length} menu items`);
+      } else {
+        console.error("Failed to load menu items:", response.message);
+      }
+    } catch (error) {
+      console.error("Error loading menu items:", error);
+    }
+  };
+
+  const loadTables = async () => {
+    try {
+      const response = await Table.list();
+      if (response.success) {
+        setTables(response.data);
+        console.log(`Loaded ${response.data.length} tables`);
+      } else {
+        console.error("Failed to load tables:", response.message);
+      }
+    } catch (error) {
+      console.error("Error loading tables:", error);
+    }
+  };
 
   const todayOrders = orders.filter(order => {
     const orderDate = new Date(order.created_date);
@@ -51,9 +135,50 @@ export default function Dashboard() {
   const averageOrderValue = todayOrders.length > 0 ? todayRevenue / todayOrders.length : 0;
   const pendingOrders = orders.filter(order => order.status === 'pending' || order.status === 'preparing').length;
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-2">Loading Dashboard</h3>
+            <p className="text-slate-600">Fetching your restaurant data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error && !vendor) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-2">Access Required</h3>
+            <p className="text-slate-600 mb-4">{error}</p>
+            <Link to="/vendor-login">
+              <Button>Go to Login</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-8">
       <div className="max-w-7xl mx-auto">
+        {/* Error Display */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
@@ -62,6 +187,11 @@ export default function Dashboard() {
             <p className="text-slate-600">
               Welcome back! Here's what's happening at your venue today.
             </p>
+            {vendor && (
+              <p className="text-sm text-slate-500 mt-1">
+                Restaurant: {vendor.name || vendor.restaurantName}
+              </p>
+            )}
           </div>
           <div className="flex gap-3">
             <Link to={createPageUrl("MenuManagement")}>
@@ -86,21 +216,21 @@ export default function Dashboard() {
             value={`$${todayRevenue.toFixed(2)}`}
             icon={DollarSign}
             bgColor="from-emerald-500 to-teal-600"
-            change="+12.5%"
+            subtitle={`${todayOrders.length} orders today`}
           />
           <StatsCard
-            title="Orders Today"
-            value={todayOrders.length}
+            title="Total Orders"
+            value={orders.length}
             icon={ShoppingCart}
             bgColor="from-blue-500 to-indigo-600"
-            change="+8.2%"
+            subtitle={`${todayOrders.length} today`}
           />
           <StatsCard
-            title="Average Order"
-            value={`$${averageOrderValue.toFixed(2)}`}
-            icon={TrendingUp}
+            title="Menu Items"
+            value={menuItems.length}
+            icon={ChefHat}
             bgColor="from-sky-500 to-cyan-500"
-            change="+5.1%"
+            subtitle={`${menuItems.filter(item => item.available).length} available`}
           />
           <StatsCard
             title="Pending Orders"
@@ -108,17 +238,45 @@ export default function Dashboard() {
             icon={Clock}
             bgColor="from-amber-500 to-orange-500"
             urgent={pendingOrders > 5}
+            subtitle={pendingOrders > 0 ? "Need attention" : "All caught up!"}
           />
         </div>
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <RecentOrders orders={orders.slice(0, 10)} isLoading={isLoading} />
+            <RecentOrders orders={orders.slice(0, 10)} isLoading={false} />
           </div>
           
           <div className="space-y-6">
             <QuickActions />
+            
+            {/* Additional Dashboard Stats */}
+            {tables.length > 0 && (
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Restaurant Info</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Total Tables:</span>
+                    <span className="font-medium">{tables.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Total Capacity:</span>
+                    <span className="font-medium">{tables.reduce((sum, table) => sum + (table.capacity || 0), 0)} seats</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Available Items:</span>
+                    <span className="font-medium">{menuItems.filter(item => item.available).length}/{menuItems.length}</span>
+                  </div>
+                  {todayOrders.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Avg Order Value:</span>
+                      <span className="font-medium">${averageOrderValue.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

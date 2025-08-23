@@ -5,6 +5,8 @@ import { Activity } from "lucide-react";
 
 export default function OrderTrends({ orders }) {
   const getHourlyData = () => {
+    if (!orders || orders.length === 0) return [];
+    
     const hourlyData = {};
     orders.forEach(order => {
       const hour = new Date(order.created_date).getHours();
@@ -26,18 +28,28 @@ export default function OrderTrends({ orders }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={getHourlyData()}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="hour" />
-            <YAxis />
-            <Tooltip 
-              formatter={(value) => [value, 'Orders']}
-              labelFormatter={(label) => `Hour: ${label}:00`}
-            />
-            <Line type="monotone" dataKey="orders" stroke="#8b5cf6" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
+        {orders && orders.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={getHourlyData()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="hour" />
+              <YAxis />
+              <Tooltip 
+                formatter={(value) => [value, 'Orders']}
+                labelFormatter={(label) => `Hour: ${label}:00`}
+              />
+              <Line type="monotone" dataKey="orders" stroke="#8b5cf6" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-[300px] flex items-center justify-center">
+            <div className="text-center">
+              <Activity className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500">No order trends data</p>
+              <p className="text-slate-400 text-sm">Chart will show hourly patterns when you receive orders</p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

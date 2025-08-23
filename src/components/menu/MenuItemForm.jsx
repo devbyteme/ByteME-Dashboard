@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,22 +7,54 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Save, Loader2 } from "lucide-react";
+import { X, Save, Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Category } from "@/api";
 
 export default function MenuItemForm({ item, onSave, onCancel, isSaving = false }) {
   const [formData, setFormData] = useState({
     name: item?.name || "",
     description: item?.description || "",
     price: item?.price || "",
-    category: item?.category || "mains",
+    category: item?.category || "",
     image: item?.image || "",
     available: item?.available ?? true,
     dietary_info: item?.dietary_info || [],
     preparationTime: item?.preparationTime || ""
   });
 
-  const categories = ["appetizers", "mains", "desserts", "beverages", "wine", "cocktails", "coffee"];
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState("");
   const dietaryOptions = ["vegetarian", "vegan", "gluten-free", "dairy-free", "nut-free", "spicy"];
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      setCategoriesLoading(true);
+      setCategoriesError("");
+      const response = await Category.list();
+      
+      if (response.success) {
+        setCategories(response.data);
+        
+        // If this is a new item and no category is set, use the first category
+        if (!item && !formData.category && response.data.length > 0) {
+          setFormData(prev => ({ ...prev, category: response.data[0].name }));
+        }
+      } else {
+        throw new Error(response.message || "Failed to load categories");
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+      setCategoriesError(error.message || "Failed to load categories");
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -108,22 +140,39 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
+              {categoriesError && (
+                <Alert variant="destructive" className="mb-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{categoriesError}</AlertDescription>
+                </Alert>
+              )}
               <Select 
                 value={formData.category} 
                 onValueChange={(value) => setFormData({...formData, category: value})}
-                disabled={isSaving}
+                disabled={isSaving || categoriesLoading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select category"} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map(category => (
-                    <SelectItem key={category} value={category}>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    <SelectItem key={category._id} value={category.name}>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: category.color }}
+                        />
+                        {category.displayName}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {categories.length === 0 && !categoriesLoading && !categoriesError && (
+                <p className="text-sm text-gray-500">
+                  No categories found. Create categories first in Category Management.
+                </p>
+              )}
             </div>
             
             <div className="space-y-2">

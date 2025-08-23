@@ -42,8 +42,15 @@ export default function RecentOrders({ orders, isLoading }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {orders.map((order) => (
+        {orders.length === 0 ? (
+          <div className="text-center py-8">
+            <Clock className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-600 mb-2">No Orders Yet</h3>
+            <p className="text-slate-500">Orders from customers will appear here once they start placing orders.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order) => (
             <div 
               key={order.id} 
               className="p-4 border border-slate-200 rounded-lg hover:shadow-md transition-shadow"
@@ -79,7 +86,8 @@ export default function RecentOrders({ orders, isLoading }) {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

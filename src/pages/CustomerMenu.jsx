@@ -343,34 +343,37 @@ export default function CustomerMenu() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200">
+      <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo and Restaurant Info */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center">
-                <UtensilsCrossed className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center">
+                <UtensilsCrossed className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">QR Dining</h1>
-                <p className="text-sm text-slate-600">Table {tableNumber}</p>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900">QR Dining</h1>
+                <p className="text-xs sm:text-sm text-slate-600">Table {tableNumber}</p>
               </div>
             </div>
             
             {/* User Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {user ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-600">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="hidden sm:block text-sm text-slate-600">
                     Welcome, {user.firstName || user.name || 'Guest'}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
+                    className="h-8 sm:h-9 px-2 sm:px-3"
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    {isGuestMode ? 'Exit Guest Mode' : 'Sign Out'}
+                    <LogOut className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">
+                      {isGuestMode ? 'Exit Guest Mode' : 'Sign Out'}
+                    </span>
                   </Button>
                 </div>
               ) : (
@@ -378,10 +381,11 @@ export default function CustomerMenu() {
                   variant="outline"
                   size="sm"
                   onClick={handleAuthRedirect}
+                  className="h-8 sm:h-9 px-2 sm:px-3"
                 >
-                  <User className="w-4 h-4 mr-2" />
-                    Sign In
-                  </Button>
+                  <User className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Sign In</span>
+                </Button>
               )}
 
               {/* Cart Button */}
@@ -389,12 +393,12 @@ export default function CustomerMenu() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowCart(!showCart)}
-                className="relative"
+                className="relative h-8 sm:h-9 px-2 sm:px-3"
               >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Cart
+                <ShoppingCart className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Cart</span>
                 {cart.length > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-blue-600 text-white">
                     {cart.reduce((total, item) => total + item.quantity, 0)}
                   </Badge>
                 )}
@@ -405,35 +409,42 @@ export default function CustomerMenu() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Search and Filters */}
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="Search menu items..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-        </div>
-      </div>
+        <div className="mb-6 space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Search menu items..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-12 text-base"
+            />
+          </div>
 
-            <div className="flex gap-2">
+          {/* Horizontally Scrollable Categories */}
+          <div className="relative">
+            <div className="flex overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 gap-3">
               {categories.map((category) => (
                 <Button
                   key={category}
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  className="capitalize"
+                  className={`capitalize whitespace-nowrap px-4 py-2 h-10 flex-shrink-0 transition-all duration-200 ${
+                    selectedCategory === category 
+                      ? 'bg-blue-600 text-white shadow-md border-blue-600' 
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-blue-50 hover:border-blue-300'
+                  }`}
                 >
                   {category}
                 </Button>
               ))}
             </div>
+            
+            {/* Scroll indicators */}
+            <div className="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-slate-50 to-transparent pointer-events-none"></div>
           </div>
         </div>
 
@@ -457,51 +468,51 @@ export default function CustomerMenu() {
         )}
 
         {/* Menu Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {filteredItems.map((item) => (
-            <Card key={item._id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg font-semibold text-slate-900 mb-1">
+            <Card key={item._id} className="bg-white shadow-sm hover:shadow-md transition-all duration-200 border-0 rounded-xl overflow-hidden">
+              <CardHeader className="pb-3 p-4">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-base sm:text-lg font-semibold text-slate-900 mb-1 line-clamp-2">
                       {item.name}
                     </CardTitle>
-                    <p className="text-sm text-slate-600 line-clamp-2">
+                    <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
-                  <Badge variant="secondary" className="ml-2">
+                  <Badge variant="secondary" className="flex-shrink-0 bg-blue-100 text-blue-800 font-bold px-2 py-1">
                     ${item.price}
                   </Badge>
                 </div>
               </CardHeader>
               
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <Clock className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                     {item.preparationTime || '15'} min
                   </div>
                   {item.rating && (
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-slate-600">{item.rating}</span>
+                      <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current" />
+                      <span className="text-xs sm:text-sm text-slate-600">{item.rating}</span>
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="capitalize">
+                  <Badge variant="outline" className="capitalize text-xs px-2 py-1 bg-slate-50 text-slate-600 border-slate-200">
                     {item.category}
                   </Badge>
                   
                   <Button
                     size="sm"
                     onClick={() => addToCart(item)}
-                    className="h-8 px-3"
+                    className="h-8 sm:h-9 px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Add</span>
                   </Button>
                 </div>
               </CardContent>
@@ -525,76 +536,76 @@ export default function CustomerMenu() {
 
       {/* Floating Cart Button (Uber Eats Style) */}
       {cart.length > 0 && !showCart && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+        <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-40 px-4 w-full max-w-sm">
           <Button
             onClick={() => setShowCart(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-6 py-3 rounded-full h-12 flex items-center gap-3 min-w-[200px] justify-between transition-all duration-300 hover:scale-105"
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-xl px-4 sm:px-6 py-3 rounded-full h-12 sm:h-14 flex items-center gap-2 sm:gap-3 w-full justify-between transition-all duration-300 hover:scale-105 active:scale-95"
           >
             <div className="flex items-center gap-2">
-              <div className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">
+              <div className="bg-white/20 rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center">
                 <span className="text-sm font-bold">{cart.reduce((sum, item) => sum + item.quantity, 0)}</span>
               </div>
-              <span className="font-medium">View Cart</span>
+              <span className="font-medium text-sm sm:text-base">View Cart</span>
             </div>
-            <span className="font-bold">${getCartTotal().toFixed(2)}</span>
+            <span className="font-bold text-sm sm:text-base">${getCartTotal().toFixed(2)}</span>
           </Button>
         </div>
       )}
 
             {/* Enhanced Cart Modal */}
       {showCart && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center">
-          <div className="bg-white w-full max-w-md h-[85vh] rounded-t-2xl flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-300">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center sm:justify-center">
+          <div className="bg-white w-full sm:max-w-md h-[90vh] sm:h-[85vh] sm:rounded-2xl rounded-t-2xl flex flex-col shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom duration-300">
             {/* Cart Header */}
-            <div className="border-b border-slate-200 p-4 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="border-b border-slate-200 p-4 sm:p-5 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 sm:rounded-t-2xl">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Your Order</h2>
-                <p className="text-sm text-slate-600">Table {tableNumber} • {cart.reduce((sum, item) => sum + item.quantity, 0)} items</p>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Your Order</h2>
+                <p className="text-xs sm:text-sm text-slate-600">Table {tableNumber} • {cart.reduce((sum, item) => sum + item.quantity, 0)} items</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowCart(false)}
-                className="h-10 w-10 hover:bg-white/50 rounded-full"
+                className="h-8 w-8 sm:h-10 sm:w-10 hover:bg-white/50 rounded-full"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
               {cart.length === 0 ? (
-                <div className="text-center py-12">
-                  <ShoppingCart className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-500 text-lg">Your cart is empty</p>
+                <div className="text-center py-8 sm:py-12">
+                  <ShoppingCart className="w-12 h-12 sm:w-16 sm:h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500 text-base sm:text-lg">Your cart is empty</p>
                   <p className="text-slate-400 text-sm">Add some delicious items to get started!</p>
                 </div>
               ) : (
                 cart.map((item) => (
-                  <div key={item._id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={item._id} className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm">
                     <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-slate-900 text-lg">{item.name}</h3>
-                        <p className="text-slate-600 text-sm mt-1 line-clamp-2">{item.description}</p>
+                      <div className="flex-1 min-w-0 pr-2">
+                        <h3 className="font-semibold text-slate-900 text-base sm:text-lg truncate">{item.name}</h3>
+                        <p className="text-slate-600 text-sm mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="text-lg font-bold text-blue-600">${item.price}</span>
-                          <span className="text-sm text-slate-500">each</span>
+                          <span className="text-base sm:text-lg font-bold text-blue-600">${item.price}</span>
+                          <span className="text-xs sm:text-sm text-slate-500">each</span>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 bg-slate-100 rounded-full p-1">
+                      <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-full p-1 shadow-sm">
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => removeFromCart(item._id)}
-                          className="h-8 w-8 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors"
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors p-0"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Button>
                         
-                        <span className="w-8 text-center font-bold text-slate-900 text-lg">
+                        <span className="w-6 sm:w-8 text-center font-bold text-slate-900 text-base sm:text-lg">
                           {item.quantity}
                         </span>
                         
@@ -602,14 +613,14 @@ export default function CustomerMenu() {
                           size="sm"
                           variant="ghost"
                           onClick={() => addToCart(item)}
-                          className="h-8 w-8 rounded-full hover:bg-green-100 hover:text-green-600 transition-colors"
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full hover:bg-green-100 hover:text-green-600 transition-colors p-0"
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Button>
                       </div>
                       
                       <div className="text-right">
-                        <div className="font-bold text-slate-900 text-lg">
+                        <div className="font-bold text-slate-900 text-base sm:text-lg">
                           ${(item.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
@@ -621,31 +632,34 @@ export default function CustomerMenu() {
 
             {/* Cart Summary & Checkout */}
             {cart.length > 0 && (
-              <div className="border-t border-slate-200 bg-slate-50 p-4 space-y-4">
+              <div className="border-t border-slate-200 bg-slate-50 p-3 sm:p-4 space-y-3 sm:space-y-4 sm:rounded-b-2xl">
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center text-slate-700">
+                  <div className="flex justify-between items-center text-slate-700 text-sm sm:text-base">
                     <span>Subtotal ({cart.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
                     <span className="font-semibold">${getCartTotal().toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-700">
+                  <div className="flex justify-between items-center text-slate-700 text-sm sm:text-base">
                     <span>Estimated time</span>
                     <span className="font-semibold">20-30 min</span>
                   </div>
                 </div>
                 
                 <div className="border-t border-slate-300 pt-3">
-                  <div className="flex justify-between items-center text-xl font-bold text-slate-900 mb-4">
-                    <span>Total</span>
+                  <div className="flex justify-between items-center text-lg sm:text-xl font-bold text-slate-900 mb-2">
+                    <span>Subtotal</span>
                     <span className="text-blue-600">${getCartTotal().toFixed(2)}</span>
+                  </div>
+                  <div className="text-xs text-slate-500 text-center mb-3 sm:mb-4">
+                    Tip and final total calculated at checkout
                   </div>
                   
                   <Button
                     onClick={handleCheckout}
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
+                    className="w-full h-11 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base sm:text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95"
                     disabled={cart.length === 0}
                   >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Go to Checkout
+                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Continue to Checkout
                   </Button>
                 </div>
               </div>

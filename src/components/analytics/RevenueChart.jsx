@@ -13,18 +13,28 @@ export default function RevenueChart({ dailyRevenue }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={dailyRevenue}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip 
-              formatter={(value) => [`$${value.toFixed(2)}`, 'Revenue']}
-              labelFormatter={(label) => `Date: ${label}`}
-            />
-            <Bar dataKey="revenue" fill="#1e40af" />
-          </BarChart>
-        </ResponsiveContainer>
+        {dailyRevenue && dailyRevenue.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={dailyRevenue}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip 
+                formatter={(value) => [`$${value.toFixed(2)}`, 'Revenue']}
+                labelFormatter={(label) => `Date: ${label}`}
+              />
+              <Bar dataKey="revenue" fill="#1e40af" />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-[300px] flex items-center justify-center">
+            <div className="text-center">
+              <TrendingUp className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500">No revenue data available</p>
+              <p className="text-slate-400 text-sm">Chart will appear when you receive orders</p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

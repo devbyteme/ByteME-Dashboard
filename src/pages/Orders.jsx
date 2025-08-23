@@ -73,6 +73,14 @@ export default function Orders() {
           status: order.status,
           items: order.items || [],
           notes: order.notes,
+          // New fields
+          paymentMethod: order.paymentMethod,
+          tipAmount: order.tipAmount || 0,
+          tipPercentage: order.tipPercentage || 0,
+          dietaryRequirements: order.dietaryRequirements || [],
+          specialRequests: order.specialRequests,
+          customerPhone: order.customerPhone,
+          // Existing fields
           estimatedPreparationTime: order.estimatedPreparationTime,
           actualPreparationTime: order.actualPreparationTime,
           paymentStatus: order.paymentStatus

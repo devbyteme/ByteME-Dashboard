@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export default function StatsCard({ title, value, icon: Icon, bgColor, change, urgent }) {
+export default function StatsCard({ title, value, icon: Icon, bgColor, change, urgent, subtitle }) {
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
       <CardContent className="p-6">
@@ -10,6 +10,9 @@ export default function StatsCard({ title, value, icon: Icon, bgColor, change, u
           <div className="flex-1">
             <p className="text-sm font-medium text-slate-600 mb-1">{title}</p>
             <p className="text-2xl font-bold text-slate-900">{value}</p>
+            {subtitle && (
+              <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
+            )}
             {change && (
               <Badge 
                 variant="secondary" 

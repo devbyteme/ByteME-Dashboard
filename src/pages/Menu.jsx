@@ -91,6 +91,8 @@ export default function Menu() {
     setShowCheckout(true);
   };
 
+  // Note: These are kept for backward compatibility with customer-facing menu
+  // In a production app, you'd want to fetch these dynamically too
   const categories = ["appetizers", "mains", "desserts", "beverages", "wine", "cocktails", "coffee"];
 
   return (

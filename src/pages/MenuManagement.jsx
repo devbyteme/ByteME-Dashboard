@@ -9,7 +9,8 @@ import { useNavigate } from "react-router-dom";
 import MenuItemCard from "../components/menu/MenuItemCard";
 import MenuItemForm from "../components/menu/MenuItemForm";
 import MenuStats from "../components/menu/MenuStats";
-import { menuService } from "@/api";
+import CategoryManagement from "../components/menu/CategoryManagement";
+import { menuService, Category } from "@/api";
 import { User } from "@/api";
 
 export default function MenuManagement() {
@@ -23,6 +24,7 @@ export default function MenuManagement() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [error, setError] = useState("");
   const [vendor, setVendor] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   // Check authentication and load vendor data
   useEffect(() => {
@@ -186,6 +188,16 @@ export default function MenuManagement() {
     }
   };
 
+  const handleCategoriesChange = (updatedCategories) => {
+    setCategories(updatedCategories);
+    
+    // If the currently selected category was deleted, reset to "all"
+    const categoryExists = updatedCategories.some(cat => cat.name === selectedCategory);
+    if (selectedCategory !== "all" && !categoryExists) {
+      setSelectedCategory("all");
+    }
+  };
+
   const filteredItems = menuItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (item.description || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -193,7 +205,11 @@ export default function MenuManagement() {
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ["all", "appetizers", "mains", "desserts", "beverages", "wine", "cocktails", "coffee"];
+  // Create category options for filtering (including "all" option)
+  const categoryOptions = [
+    { name: "all", displayName: "All Categories" },
+    ...categories
+  ];
 
   // Show loading state
   if (isLoading) {
@@ -281,30 +297,54 @@ export default function MenuManagement() {
 
       <MenuStats menuItems={menuItems} />
 
-      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-        <CardContent className="p-4 space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search menu items by name or description..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white text-slate-900 placeholder:text-slate-400"
-              />
-            </div>
-          </div>
+      {/* Category Management Section */}
+      <Tabs defaultValue="menu-items" className="w-full">
+        <div className="border-b border-slate-200 mb-6">
+          <TabsList className="bg-transparent p-0">
+            <TabsTrigger 
+              value="menu-items"
+              className="data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm rounded-t-md text-slate-600 px-6 py-3"
+            >
+              Menu Items
+            </TabsTrigger>
+            <TabsTrigger 
+              value="categories"
+              className="data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm rounded-t-md text-slate-600 px-6 py-3"
+            >
+              Categories
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="categories" className="mt-0">
+          <CategoryManagement onCategoriesChange={handleCategoriesChange} />
+        </TabsContent>
+
+        <TabsContent value="menu-items" className="mt-0">
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+            <CardContent className="p-4 space-y-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    placeholder="Search menu items by name or description..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-white text-slate-900 placeholder:text-slate-400"
+                  />
+                </div>
+              </div>
           
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
             <div className="overflow-x-auto scrollbar-hide">
               <TabsList className="bg-slate-100 p-1">
-                {categories.map(category => (
+                {categoryOptions.map(category => (
                   <TabsTrigger 
-                    key={category} 
-                    value={category}
+                    key={category.name} 
+                    value={category.name}
                     className="data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm rounded-md text-slate-600 hover:text-slate-900"
                   >
-                    {category === "all" ? "All" : category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category.displayName}
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -335,6 +375,8 @@ export default function MenuManagement() {
           ))}
         </div>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

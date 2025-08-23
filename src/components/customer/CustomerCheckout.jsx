@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { X, CheckCircle, CreditCard, Banknote } from "lucide-react";
 import { orderService } from "@/api";
 
@@ -13,10 +14,15 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
     customer_phone: "",
     payment_method: "cash",
     special_requests: "",
-    dietary_requirements: "",
+    dietary_requirements: [],
     tip_percentage: 15,
     custom_tip: ""
   });
+
+  const dietaryOptions = [
+    'vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'nut-free', 
+    'halal', 'kosher', 'low-sodium', 'spicy-mild', 'spicy-hot'
+  ];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -38,6 +44,10 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
     setError("");
     
     try {
+      // Calculate tip amount
+      const tipAmount = calculateTip();
+      const tipPercentage = formData.custom_tip ? 0 : formData.tip_percentage;
+      
       // Create order data for backend API
       const orderData = {
         tableNumber: parseInt(tableNumber),
@@ -47,13 +57,16 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
           quantity: item.quantity,
           notes: item.notes || ""
         })),
+        paymentMethod: formData.payment_method,
+        tipAmount: tipAmount,
+        tipPercentage: tipPercentage,
+        dietaryRequirements: formData.dietary_requirements,
+        specialRequests: formData.special_requests,
+        customerPhone: formData.customer_phone,
         notes: [
-          formData.special_requests,
-          formData.dietary_requirements && `Dietary: ${formData.dietary_requirements}`,
-          formData.customer_phone && `Phone: ${formData.customer_phone}`,
-          `Payment: ${formData.payment_method}`,
-          formData.tip_percentage > 0 && `Tip: ${formData.tip_percentage}%`,
-          formData.custom_tip && `Custom tip: $${formData.custom_tip}`
+          formData.special_requests && `Special: ${formData.special_requests}`,
+          formData.dietary_requirements.length > 0 && `Dietary: ${formData.dietary_requirements.join(', ')}`,
+          formData.customer_phone && `Phone: ${formData.customer_phone}`
         ].filter(Boolean).join(' | ')
       };
       
@@ -141,13 +154,27 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                     <p className="font-semibold text-slate-900">${total.toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-slate-700">Tip</p>
-                    <p className="font-semibold text-slate-900">${calculateTip().toFixed(2)}</p>
+                    <p className="text-slate-700">
+                      Tip {formData.custom_tip ? '(Custom)' : formData.tip_percentage > 0 ? `(${formData.tip_percentage}%)` : ''}
+                    </p>
+                    <p className={`font-semibold ${calculateTip() > 0 ? 'text-green-600' : 'text-slate-900'}`}>
+                      ${calculateTip().toFixed(2)}
+                    </p>
                   </div>
+                  {calculateTip() > 0 && (
+                    <div className="text-xs text-green-600 text-center bg-green-50 py-1 px-2 rounded">
+                      Thank you for supporting our team! 💚
+                    </div>
+                  )}
                   <div className="border-t pt-2 flex justify-between items-center">
                     <p className="font-bold text-lg text-slate-900">Total</p>
-                    <p className="font-bold text-lg text-blue-800">${getFinalTotal().toFixed(2)}</p>
+                    <p className="font-bold text-lg text-blue-600">${getFinalTotal().toFixed(2)}</p>
                   </div>
+                  {calculateTip() > 0 && (
+                    <div className="text-xs text-slate-600 text-center">
+                      Includes ${calculateTip().toFixed(2)} tip
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -175,36 +202,79 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
               </div>
             </div>
 
+            <div className="space-y-4">
+              <h3 className="font-semibold text-slate-900">Dietary Requirements</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {dietaryOptions.map((option) => (
+                  <div key={option} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={option}
+                      checked={formData.dietary_requirements.includes(option)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData(prev => ({
+                            ...prev,
+                            dietary_requirements: [...prev.dietary_requirements, option]
+                          }));
+                        } else {
+                          setFormData(prev => ({
+                            ...prev,
+                            dietary_requirements: prev.dietary_requirements.filter(req => req !== option)
+                          }));
+                        }
+                      }}
+                    />
+                    <Label 
+                      htmlFor={option} 
+                      className="text-sm font-normal capitalize cursor-pointer"
+                    >
+                      {option.replace('-', ' ')}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div>
-              <Label htmlFor="dietary_requirements" className="font-medium">Dietary Requirements</Label>
+              <Label htmlFor="special_requests" className="font-medium">Special Requests</Label>
               <Textarea
-                id="dietary_requirements"
-                value={formData.dietary_requirements}
-                onChange={(e) => setFormData({...formData, dietary_requirements: e.target.value})}
-                placeholder="Any allergies, vegetarian, vegan, gluten-free requirements..."
+                id="special_requests"
+                value={formData.special_requests}
+                onChange={(e) => setFormData({...formData, special_requests: e.target.value})}
+                placeholder="Any special cooking instructions, modifications, or requests..."
                 rows={2}
                 className="mt-2"
               />
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-semibold text-slate-900">Add Tip</h3>
-              <div className="grid grid-cols-4 gap-2">
-                {[10, 15, 18, 20].map(percentage => (
-                  <Button
-                    key={percentage}
-                    type="button"
-                    variant={formData.tip_percentage === percentage ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setFormData({...formData, tip_percentage: percentage, custom_tip: ""})}
-                    className={formData.tip_percentage === percentage 
-                      ? 'bg-blue-800 hover:bg-blue-700 text-white' 
-                      : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-50'
-                    }
-                  >
-                    {percentage}%
-                  </Button>
-                ))}
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-slate-900">Add Tip</h3>
+                {calculateTip() > 0 && (
+                  <span className="text-sm text-green-600 font-medium">
+                    +${calculateTip().toFixed(2)}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[10, 15, 18, 20].map(percentage => {
+                  const tipAmount = (total * percentage) / 100;
+                  return (
+                    <Button
+                      key={percentage}
+                      type="button"
+                      variant={formData.tip_percentage === percentage ? "default" : "outline"}
+                      onClick={() => setFormData({...formData, tip_percentage: percentage, custom_tip: ""})}
+                      className={`h-auto py-3 flex flex-col gap-1 ${formData.tip_percentage === percentage 
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' 
+                        : 'bg-white text-slate-900 border-slate-300 hover:bg-blue-50 hover:border-blue-300'
+                      }`}
+                    >
+                      <span className="font-semibold">{percentage}%</span>
+                      <span className="text-xs opacity-80">${tipAmount.toFixed(2)}</span>
+                    </Button>
+                  );
+                })}
               </div>
               <div>
                 <Label htmlFor="custom_tip" className="font-medium">Custom Tip Amount ($)</Label>
@@ -212,11 +282,23 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   id="custom_tip"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.custom_tip}
                   onChange={(e) => setFormData({...formData, custom_tip: e.target.value, tip_percentage: 0})}
                   placeholder="Enter custom amount"
                   className="mt-2"
                 />
+              </div>
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFormData({...formData, tip_percentage: 0, custom_tip: ""})}
+                  className="text-slate-500 hover:text-slate-700 text-sm"
+                >
+                  No tip
+                </Button>
               </div>
             </div>
 

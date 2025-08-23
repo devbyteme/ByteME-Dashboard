@@ -3,6 +3,7 @@ import authService from './authService';
 import customerAuthService from './customerAuthService';
 import { customerService } from './customerService';
 import { menuService } from './menuService';
+import { categoryService } from './categoryService';
 import { orderService } from './orderService';
 import { tableService } from './tableService';
 
@@ -78,12 +79,23 @@ export const Table = {
   getAvailability: (vendorId, date, time) => tableService.getAvailability(vendorId, date, time)
 };
 
+export const Category = {
+  list: () => categoryService.getAll(),
+  get: (id) => categoryService.getById(id),
+  create: (data) => categoryService.create(data),
+  update: (id, data) => categoryService.update(id, data),
+  delete: (id) => categoryService.delete(id),
+  initializeDefaults: () => categoryService.initializeDefaults(),
+  reorder: (categoryOrders) => categoryService.reorder(categoryOrders)
+};
+
 export {
   api,
   authService,
   customerAuthService,
   customerService,
   menuService,
+  categoryService,
   orderService,
   tableService
 }; 
