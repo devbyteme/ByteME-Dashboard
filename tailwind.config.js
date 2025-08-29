@@ -59,6 +59,13 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			// New ByteMe brand colors
+  			brand: {
+  				primary: '#FE4B11',    // Orange - Primary brand color
+  				secondary: '#FEFBEA',  // Light cream
+  				white: '#FFFFFF',      // Pure white
+  				dark: '#211E1D',      // Dark charcoal
   			}
   		},
   		keyframes: {

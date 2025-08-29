@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { MenuItem, Order, customerAuthService } from "@/api";
 import CustomerCheckout from "@/components/customer/CustomerCheckout";
+import ByteMeLogo from "../components/ByteMeLogo";
 
 export default function CustomerMenu() {
   const [searchParams] = useSearchParams();
@@ -348,12 +349,10 @@ export default function CustomerMenu() {
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo and Restaurant Info */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center">
-                <UtensilsCrossed className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
-              </div>
+              <ByteMeLogo variant="icon" size="small" />
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900">QR Dining</h1>
-                <p className="text-xs sm:text-sm text-slate-600">Table {tableNumber}</p>
+                <h1 className="text-lg sm:text-xl font-bold text-brand-dark">ByteMe</h1>
+                <p className="text-xs sm:text-sm text-brand-dark/70">Table {tableNumber}</p>
               </div>
             </div>
             
@@ -398,7 +397,7 @@ export default function CustomerMenu() {
                 <ShoppingCart className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Cart</span>
                 {cart.length > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-blue-600 text-white">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-brand-primary text-brand-white">
                     {cart.reduce((total, item) => total + item.quantity, 0)}
                   </Badge>
                 )}
@@ -434,8 +433,8 @@ export default function CustomerMenu() {
                   onClick={() => setSelectedCategory(category)}
                   className={`capitalize whitespace-nowrap px-4 py-2 h-10 flex-shrink-0 transition-all duration-200 ${
                     selectedCategory === category 
-                      ? 'bg-blue-600 text-white shadow-md border-blue-600' 
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-blue-50 hover:border-blue-300'
+                      ? 'bg-brand-primary text-brand-white shadow-md border-brand-primary' 
+                      : 'bg-brand-white text-brand-dark border-slate-300 hover:bg-brand-primary/5 hover:border-brand-primary/30'
                   }`}
                 >
                   {category}
@@ -481,7 +480,7 @@ export default function CustomerMenu() {
                       {item.description}
                     </p>
                   </div>
-                  <Badge variant="secondary" className="flex-shrink-0 bg-blue-100 text-blue-800 font-bold px-2 py-1">
+                  <Badge variant="secondary" className="flex-shrink-0 bg-brand-primary/10 text-brand-primary font-bold px-2 py-1">
                     ${item.price}
                   </Badge>
                 </div>
@@ -509,7 +508,7 @@ export default function CustomerMenu() {
                   <Button
                     size="sm"
                     onClick={() => addToCart(item)}
-                    className="h-8 sm:h-9 px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                    className="h-8 sm:h-9 px-3 sm:px-4 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
                   >
                     <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
                     <span className="hidden sm:inline">Add</span>
@@ -539,7 +538,7 @@ export default function CustomerMenu() {
         <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-40 px-4 w-full max-w-sm">
           <Button
             onClick={() => setShowCart(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-xl px-4 sm:px-6 py-3 rounded-full h-12 sm:h-14 flex items-center gap-2 sm:gap-3 w-full justify-between transition-all duration-300 hover:scale-105 active:scale-95"
+                          className="bg-brand-primary hover:bg-brand-primary/90 text-brand-white shadow-xl px-4 sm:px-6 py-3 rounded-full h-12 sm:h-14 flex items-center gap-2 sm:gap-3 w-full justify-between transition-all duration-300 hover:scale-105 active:scale-95"
           >
             <div className="flex items-center gap-2">
               <div className="bg-white/20 rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center">
@@ -655,7 +654,7 @@ export default function CustomerMenu() {
                   
                   <Button
                     onClick={handleCheckout}
-                    className="w-full h-11 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base sm:text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95"
+                    className="w-full h-11 sm:h-12 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-semibold text-base sm:text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95"
                     disabled={cart.length === 0}
                   >
                     <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />

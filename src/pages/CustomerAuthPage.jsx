@@ -197,20 +197,18 @@ export default function CustomerAuthPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-100 p-4">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-              <UtensilsCrossed className="w-7 h-7 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-slate-900">QR Dining</h1>
+            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
+    
           </div>
           
           {vendorId && tableNumber && (
             <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 mb-4">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-brand-dark/70">
                 Welcome to <Badge variant="secondary">Table {tableNumber}</Badge>
               </p>
             </div>
@@ -239,10 +237,10 @@ export default function CustomerAuthPage() {
         {/* Main Card */}
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-900">
+            <CardTitle className="text-2xl font-bold text-brand-dark">
               Welcome to Our Restaurant
             </CardTitle>
-            <CardDescription className="text-slate-600">
+            <CardDescription className="text-brand-dark/70">
               Sign in to personalize your experience or continue as a guest
             </CardDescription>
           </CardHeader>
@@ -251,7 +249,7 @@ export default function CustomerAuthPage() {
             {/* Google OAuth Button */}
             <Button 
               onClick={handleGoogleAuth}
-              className="w-full bg-white text-slate-700 border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+              className="w-full bg-brand-white text-brand-dark border-2 border-brand-primary/20 hover:bg-brand-primary/5 hover:border-brand-primary/30 transition-colors duration-200"
             >
               <Chrome className="w-5 h-5 mr-2" />
               Continue with Google
@@ -262,7 +260,7 @@ export default function CustomerAuthPage() {
                 <span className="w-full border-t border-slate-200" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">Or continue with email</span>
+                <span className="bg-brand-white px-2 text-brand-dark/60">Or continue with email</span>
               </div>
             </div>
 
@@ -277,7 +275,7 @@ export default function CustomerAuthPage() {
               <TabsContent value="login" className="space-y-4">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
-                    <Label htmlFor="email" className="text-slate-700">Email</Label>
+                    <Label htmlFor="email" className="text-brand-dark">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -294,7 +292,7 @@ export default function CustomerAuthPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="password" className="text-slate-700">Password</Label>
+                    <Label htmlFor="password" className="text-brand-dark">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -312,7 +310,7 @@ export default function CustomerAuthPage() {
 
                   <Button 
                     type="submit" 
-                    className="w-full h-11 gap-2"
+                    className="w-full h-11 gap-2 bg-brand-primary hover:bg-brand-primary/90 text-brand-white transition-colors duration-200"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -355,7 +353,7 @@ export default function CustomerAuthPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="email" className="text-slate-700">Email</Label>
+                    <Label htmlFor="email" className="text-brand-dark">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -372,7 +370,7 @@ export default function CustomerAuthPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="phone" className="text-slate-700">Phone</Label>
+                    <Label htmlFor="phone" className="text-brand-dark">Phone</Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -388,7 +386,7 @@ export default function CustomerAuthPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="password" className="text-slate-700">Password</Label>
+                    <Label htmlFor="password" className="text-brand-dark">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -405,7 +403,7 @@ export default function CustomerAuthPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="confirmPassword" className="text-slate-700">Confirm Password</Label>
+                    <Label htmlFor="confirmPassword" className="text-brand-dark">Confirm Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -422,7 +420,7 @@ export default function CustomerAuthPage() {
                   </div>
 
                   <div>
-                    <Label className="text-slate-700">Dietary Preferences</Label>
+                    <Label className="text-brand-dark">Dietary Preferences</Label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       {dietaryOptions.map((option) => (
                         <Button
@@ -431,7 +429,11 @@ export default function CustomerAuthPage() {
                           variant={registerData.dietaryRestrictions.includes(option) ? "default" : "outline"}
                           size="sm"
                           onClick={() => toggleDietaryRestriction(option)}
-                          className="h-8 text-xs"
+                          className={`h-8 text-xs ${
+                            registerData.dietaryRestrictions.includes(option) 
+                              ? 'bg-brand-primary hover:bg-brand-primary/90 text-brand-white' 
+                              : 'border-brand-primary/30 text-brand-dark hover:bg-brand-primary/5'
+                          }`}
                         >
                           {option}
                         </Button>
@@ -448,14 +450,14 @@ export default function CustomerAuthPage() {
                       onChange={handleRegisterInputChange}
                       className="rounded"
                     />
-                    <Label htmlFor="acceptTerms" className="text-sm text-slate-600">
+                    <Label htmlFor="acceptTerms" className="text-sm text-brand-dark/70">
                       I accept the terms and conditions
                     </Label>
                   </div>
 
                   <Button 
                     type="submit" 
-                    className="w-full h-11 gap-2"
+                    className="w-full h-11 gap-2 bg-brand-primary hover:bg-brand-primary/90 text-brand-white transition-colors duration-200"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -476,7 +478,7 @@ export default function CustomerAuthPage() {
             <Button 
               onClick={handleGuestMode}
               variant="outline"
-              className="w-full h-11"
+              className="w-full h-11 border-brand-primary text-brand-primary hover:bg-brand-primary/5 transition-colors duration-200"
             >
               Continue as Guest
             </Button>

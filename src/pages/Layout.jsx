@@ -31,6 +31,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { User } from "@/api";
+import ByteMeLogo from '../components/ByteMeLogo';
 
 const navigationItems = [
   {
@@ -185,12 +186,10 @@ export default function Layout({ children, currentPageName }) {
         <Sidebar className="border-r border-slate-200 bg-white/95 backdrop-blur-sm">
           <SidebarHeader className="border-b border-slate-200 p-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Crown className="w-6 h-6 text-white" />
-              </div>
+            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 h-10" />
               <div>
-                <h2 className="font-bold text-slate-900 text-lg">QR Dining</h2>
-                <p className="text-xs text-slate-500">Premium Hospitality</p>
+                <h2 className="font-bold text-brand-dark text-lg">ByteMe</h2>
+                <p className="text-xs text-brand-dark/70">Digital Dining Solutions</p>
               </div>
             </div>
           </SidebarHeader>
@@ -252,7 +251,7 @@ export default function Layout({ children, currentPageName }) {
           <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">QR Dining</h1>
+              <h1 className="text-xl font-bold text-slate-900">ByteMe</h1>
             </div>
           </header>
 

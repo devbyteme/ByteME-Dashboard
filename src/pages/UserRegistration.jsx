@@ -135,7 +135,7 @@ export default function UserRegistration() {
             <div className="w-12 h-12 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
               <Crown className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold">QR Dining</h1>
+            <h1 className="text-2xl font-bold">ByteMe</h1>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export default function UserRegistration() {
         
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-900">Welcome to QR Dining</CardTitle>
+            <CardTitle className="text-2xl font-bold text-slate-900">Welcome to ByteMe</CardTitle>
             <CardDescription className="text-slate-600">
               Choose how you'd like to access the menu
             </CardDescription>

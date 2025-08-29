@@ -76,7 +76,7 @@ export default function UserLogin() {
             <div className="w-12 h-12 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
               <Crown className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold">QR Dining</h1>
+            <h1 className="text-2xl font-bold">ByteMe</h1>
           </div>
         </div>
 

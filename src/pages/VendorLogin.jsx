@@ -126,14 +126,11 @@ export default function VendorLogin() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-100 p-4">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <div className="flex items-center gap-3 text-slate-900">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Crown className="w-7 h-7 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold">QR Dining</h1>
+                      <div className="flex items-center gap-3 text-brand-dark">
+            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
           </div>
         </div>
 
@@ -157,10 +154,10 @@ export default function VendorLogin() {
         
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-900">
+            <CardTitle className="text-2xl font-bold text-brand-dark">
               Vendor Login
             </CardTitle>
-            <CardDescription className="text-slate-600">
+            <CardDescription className="text-brand-dark/70">
               Access your restaurant management dashboard
             </CardDescription>
           </CardHeader>
@@ -169,7 +166,7 @@ export default function VendorLogin() {
             {/* Google OAuth Button */}
             <Button 
               onClick={handleGoogleSignIn}
-              className="w-full bg-white text-slate-700 border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+              className="w-full bg-brand-white text-brand-dark border-2 border-brand-primary/20 hover:bg-brand-primary/5 hover:border-brand-primary/30 transition-colors duration-200"
             >
               <Chrome className="w-5 h-5 mr-2" />
               Continue with Google
@@ -180,13 +177,13 @@ export default function VendorLogin() {
                 <span className="w-full border-t border-slate-200" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">Or continue with email</span>
+                <span className="bg-brand-white px-2 text-brand-dark/60">Or continue with email</span>
               </div>
             </div>
 
             <form onSubmit={handleSignIn} className="space-y-4">
               <div>
-                <Label htmlFor="email" className="text-slate-700">Email</Label>
+                <Label htmlFor="email" className="text-brand-dark">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                   <Input
@@ -196,14 +193,14 @@ export default function VendorLogin() {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="Enter your email"
-                    className="pl-10 bg-white text-slate-900"
+                    className="pl-10 bg-brand-white text-brand-dark"
                     required
                   />
                 </div>
               </div>
               
               <div>
-                <Label htmlFor="password" className="text-slate-700">Password</Label>
+                <Label htmlFor="password" className="text-brand-dark">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                   <Input
@@ -213,7 +210,7 @@ export default function VendorLogin() {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Enter your password"
-                    className="pl-10 bg-white text-slate-900"
+                    className="pl-10 bg-brand-white text-brand-dark"
                     required
                   />
                 </div>
@@ -221,7 +218,7 @@ export default function VendorLogin() {
               
               <Button 
                 type="submit" 
-                className="w-full h-11 text-lg"
+                className="w-full h-11 text-lg bg-brand-primary hover:bg-brand-primary/90 text-brand-white transition-colors duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -239,11 +236,11 @@ export default function VendorLogin() {
             </form>
 
             <div className="text-center">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-brand-dark/70">
                 Don't have an account?{" "}
                 <Link 
                   to={createPageUrl("VendorRegistration")}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-brand-primary hover:text-brand-primary/80 font-medium"
                 >
                   Sign up here
                 </Link>

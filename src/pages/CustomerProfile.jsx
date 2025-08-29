@@ -57,33 +57,31 @@ export default function CustomerProfile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-brand-secondary to-brand-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-800 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading profile...</p>
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-brand-primary mx-auto mb-4"></div>
+        <p className="text-brand-dark/70">Loading profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-brand-secondary to-brand-white">
       <div className="bg-white/95 backdrop-blur-sm border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link to={createPageUrl("CustomerOrder")}>
-              <Button variant="ghost" size="sm" className="gap-2 text-slate-700 hover:text-slate-900">
+              <Button variant="ghost" size="sm" className="gap-2 text-brand-dark hover:text-brand-primary">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Menu
               </Button>
             </Link>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-800 to-amber-500 rounded-full flex items-center justify-center">
-                <UserIcon className="w-6 h-6 text-white" />
-              </div>
+              <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-10 h-10" />
               <div>
-                <h1 className="text-xl font-bold text-slate-900">My Profile</h1>
-                <p className="text-sm text-slate-600">{user?.email}</p>
+                <h1 className="text-xl font-bold text-brand-dark">My Profile</h1>
+                <p className="text-sm text-brand-dark/70">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -96,10 +94,10 @@ export default function CustomerProfile() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600">Total Orders</p>
-                  <p className="text-2xl font-bold text-blue-800">{orders.length}</p>
+                  <p className="text-sm text-brand-dark/70">Total Orders</p>
+                  <p className="text-2xl font-bold text-brand-primary">{orders.length}</p>
                 </div>
-                <ShoppingBag className="w-8 h-8 text-blue-800" />
+                <ShoppingBag className="w-8 h-8 text-brand-primary" />
               </div>
             </CardContent>
           </Card>
@@ -108,7 +106,7 @@ export default function CustomerProfile() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600">Total Spent</p>
+                  <p className="text-sm text-brand-dark/70">Total Spent</p>
                   <p className="text-2xl font-bold text-green-600">
                     ${orders.reduce((sum, order) => sum + (order.final_amount || 0), 0).toFixed(2)}
                   </p>
@@ -122,7 +120,7 @@ export default function CustomerProfile() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600">Loyalty Points</p>
+                  <p className="text-sm text-brand-dark/70">Loyalty Points</p>
                   <p className="text-2xl font-bold text-amber-600">{profile?.loyalty_points || 0}</p>
                 </div>
                 <Trophy className="w-8 h-8 text-amber-600" />
@@ -132,15 +130,15 @@ export default function CustomerProfile() {
         </div>
 
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-1 rounded-lg">
-            <TabsTrigger value="orders" className="data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm rounded-md text-slate-600">Order History</TabsTrigger>
-            <TabsTrigger value="perks" className="data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm rounded-md text-slate-600">Special Offers</TabsTrigger>
-          </TabsList>
+                      <TabsList className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-1 rounded-lg">
+              <TabsTrigger value="orders" className="data-[state=active]:bg-brand-white data-[state=active]:text-brand-primary data-[state=active]:shadow-sm rounded-md text-brand-dark/70">Order History</TabsTrigger>
+              <TabsTrigger value="perks" className="data-[state=active]:bg-brand-white data-[state=active]:text-brand-primary data-[state=active]:shadow-sm rounded-md text-brand-dark/70">Special Offers</TabsTrigger>
+            </TabsList>
 
           <TabsContent value="orders" className="mt-6">
             <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-slate-900">Recent Orders</CardTitle>
+                <CardTitle className="text-brand-dark">Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -152,23 +150,23 @@ export default function CustomerProfile() {
                             <Badge className={getStatusColor(order.status)}>
                               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                             </Badge>
-                            <span className="text-sm text-slate-600">
+                            <span className="text-sm text-brand-dark/70">
                               Table {order.table_number}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-brand-dark/70">
                             {format(new Date(order.created_date), "PPp")}
                           </p>
-                          <p className="text-sm font-medium text-slate-900">
+                          <p className="text-sm font-medium text-brand-dark">
                             {order.venue_name || "Fine Dining Restaurant"}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-slate-900">
+                          <p className="font-semibold text-brand-dark">
                             ${(order.final_amount || 0).toFixed(2)}
                           </p>
                           {order.tip_amount > 0 && (
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-brand-dark/50">
                               (inc. ${order.tip_amount.toFixed(2)} tip)
                             </p>
                           )}
@@ -177,12 +175,12 @@ export default function CustomerProfile() {
                       
                       <div className="space-y-1">
                         {order.items?.slice(0, 3).map((item, index) => (
-                          <p key={index} className="text-sm text-slate-700">
+                          <p key={index} className="text-sm text-brand-dark">
                             {item.quantity}x {item.name}
                           </p>
                         ))}
                         {order.items?.length > 3 && (
-                          <p className="text-sm text-slate-500">
+                          <p className="text-sm text-brand-dark/50">
                             +{order.items.length - 3} more items
                           </p>
                         )}
@@ -191,7 +189,7 @@ export default function CustomerProfile() {
                   ))}
                   
                   {orders.length === 0 && (
-                    <div className="text-center py-8 text-slate-500">
+                    <div className="text-center py-8 text-brand-dark/50">
                       <ShoppingBag className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p>No orders yet</p>
                     </div>
@@ -204,7 +202,7 @@ export default function CustomerProfile() {
           <TabsContent value="perks" className="mt-6">
             <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-slate-900">Special Offers & Perks</CardTitle>
+                <CardTitle className="text-brand-dark">Special Offers & Perks</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,18 +211,18 @@ export default function CustomerProfile() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Gift className="w-5 h-5 text-amber-600" />
-                          <h3 className="font-semibold text-slate-900">{perk.title}</h3>
+                          <h3 className="font-semibold text-brand-dark">{perk.title}</h3>
                         </div>
                         <Badge className="bg-amber-100 text-amber-800">
                           {perk.type.replace('_', ' ')}
                         </Badge>
                       </div>
                       
-                      <p className="text-sm text-slate-600 mb-3">
+                      <p className="text-sm text-brand-dark/70 mb-3">
                         {perk.description}
                       </p>
                       
-                      <div className="flex items-center justify-between text-xs text-slate-500">
+                      <div className="flex items-center justify-between text-xs text-brand-dark/50">
                         {perk.valid_until && (
                           <span>Expires: {format(new Date(perk.valid_until), "PP")}</span>
                         )}
@@ -236,7 +234,7 @@ export default function CustomerProfile() {
                   ))}
                   
                   {perks.length === 0 && (
-                    <div className="col-span-2 text-center py-8 text-slate-500">
+                    <div className="col-span-2 text-center py-8 text-brand-dark/50">
                       <Gift className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p>No special offers available</p>
                     </div>

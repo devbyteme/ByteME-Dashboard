@@ -3,7 +3,7 @@ import React from 'react';
 const ProjectContext = () => {
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif', lineHeight: '1.6' }}>
-      <h1>QR Dining Platform</h1>
+      <h1>ByteMe Platform</h1>
 
       <h2>Project Overview</h2>
       <p>This application is a comprehensive QR code-based dining solution designed for restaurants, cafes, and other hospitality venues. It allows customers to view the menu, place orders, and pay directly from their table by scanning a QR code. For restaurant staff, it provides a powerful admin dashboard to manage menus, track orders in real-time, generate QR codes, and view analytics.</p>

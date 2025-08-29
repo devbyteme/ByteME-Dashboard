@@ -82,23 +82,23 @@ export default function VendorRegistration() {
   // Success state UI
   if (success) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-100 p-4">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
         <div className="w-full max-w-md text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Registration Successful!</h2>
-          <p className="text-slate-600 mb-4">
+          <h2 className="text-2xl font-bold text-brand-dark mb-2">Registration Successful!</h2>
+          <p className="text-brand-dark/70 mb-4">
             Your vendor account has been created successfully. Please sign in to access your dashboard.
           </p>
           <div className="space-y-3">
             <Button 
               onClick={() => navigate(`${createPageUrl("VendorLogin")}?from=registration`)}
-              className="w-full h-11 gap-2"
+              className="w-full h-11 gap-2 bg-brand-primary hover:bg-brand-primary/90 text-brand-white transition-colors duration-200"
             >
               Go to Sign In <ArrowRight className="w-4 h-4" />
             </Button>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-brand-dark/50">
               Redirecting automatically in 5 seconds...
             </p>
           </div>
@@ -109,21 +109,19 @@ export default function VendorRegistration() {
 
   // Main registration form
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-100 p-4">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <Link to={createPageUrl("Welcome")} className="flex items-center gap-3 text-slate-900">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-800 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Crown className="w-7 h-7 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold">QR Dining</h1>
+          <Link to={createPageUrl("Welcome")} className="flex items-center gap-3 text-brand-dark">
+            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-12 h-12" />
+            <h1 className="text-2xl font-bold text-brand-dark">ByteMe</h1>
           </Link>
         </div>
         
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-900">Create a Vendor Account</CardTitle>
-            <CardDescription className="text-slate-600">
+            <CardTitle className="text-2xl font-bold text-brand-dark">Create a Vendor Account</CardTitle>
+            <CardDescription className="text-brand-dark/70">
               Join our platform and manage your venue effortlessly.
             </CardDescription>
           </CardHeader>
@@ -255,14 +253,14 @@ export default function VendorRegistration() {
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Tell us about your restaurant..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                   rows={3}
                 />
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full h-11 gap-2" 
+                className="w-full h-11 gap-2 bg-brand-primary hover:bg-brand-primary/90 text-brand-white transition-colors duration-200" 
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -279,9 +277,9 @@ export default function VendorRegistration() {
             </form>
 
             <div className="mt-6 text-center text-sm">
-              <p className="text-slate-600">
+              <p className="text-brand-dark/70">
                 Already have an account?{" "}
-                <Link to={createPageUrl("VendorLogin")} className="font-medium text-blue-800 hover:underline">
+                <Link to={createPageUrl("VendorLogin")} className="font-medium text-brand-primary hover:text-brand-primary/80">
                   Sign In
                 </Link>
               </p>
