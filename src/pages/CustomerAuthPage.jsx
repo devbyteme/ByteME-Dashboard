@@ -18,7 +18,7 @@ import {
   UtensilsCrossed,
   ArrowRight
 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { customerAuthService } from "@/api";
 
 export default function CustomerAuthPage() {
@@ -321,6 +321,16 @@ export default function CustomerAuthPage() {
                       </>
                     )}
                   </Button>
+
+                  {/* Forgot Password Link */}
+                  <div className="text-center pt-2">
+                    <Link
+                      to="/customer-forgot-password"
+                      className="text-sm text-brand-primary hover:text-brand-primary/80 transition-colors"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </div>
                 </form>
               </TabsContent>
 

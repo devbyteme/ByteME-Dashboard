@@ -165,7 +165,27 @@ class AuthService {
       return null;
     } catch (error) {
       throw error;
-      }
+    }
+  }
+
+  // Forgot password - send reset email
+  async forgotPassword(emailData) {
+    try {
+      const response = await api.post('/auth/forgot-password', emailData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Reset password with token
+  async resetPassword(resetData) {
+    try {
+      const response = await api.post('/auth/reset-password', resetData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

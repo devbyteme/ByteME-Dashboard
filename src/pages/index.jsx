@@ -4,6 +4,10 @@ import Layout from "./Layout";
 import Welcome from "./Welcome";
 import VendorLogin from "./VendorLogin";
 import VendorRegistration from "./VendorRegistration";
+import VendorForgotPassword from "./VendorForgotPassword";
+import VendorResetPassword from "./VendorResetPassword";
+import CustomerForgotPassword from "./CustomerForgotPassword";
+import CustomerResetPassword from "./CustomerResetPassword";
 import Dashboard from "./Dashboard";
 import MenuManagement from "./MenuManagement";
 import Orders from "./Orders";
@@ -25,6 +29,10 @@ export default function PagesContent() {
       <Route path="/welcome" element={<Layout currentPageName="Welcome"><Welcome /></Layout>} />
       <Route path="/vendor-login" element={<Layout currentPageName="VendorLogin"><VendorLogin /></Layout>} />
       <Route path="/vendor-registration" element={<Layout currentPageName="VendorRegistration"><VendorRegistration /></Layout>} />
+      <Route path="/vendor-forgot-password" element={<VendorForgotPassword />} />
+      <Route path="/vendor-reset-password" element={<VendorResetPassword />} />
+      <Route path="/customer-forgot-password" element={<CustomerForgotPassword />} />
+      <Route path="/customer-reset-password" element={<CustomerResetPassword />} />
       <Route path="/user-registration" element={<Layout currentPageName="UserRegistration"><UserRegistration /></Layout>} />
       <Route path="/user-login" element={<Layout currentPageName="UserLogin"><UserLogin /></Layout>} />
       <Route path="/qr-scanner" element={<Layout currentPageName="QRScanner"><QRScanner /></Layout>} />

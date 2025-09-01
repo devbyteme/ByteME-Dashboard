@@ -17,7 +17,8 @@ export function createPageUrl(pageName: string) {
         'MenuManagement': '/menu-management',
         'Orders': '/orders',
         'QRGenerator': '/qr-generator',
-        'Analytics': '/analytics'
+        'Analytics': '/analytics',
+        'VendorForgotPassword': '/vendor-forgot-password'
     };
     
     return routeMap[pageName] || '/' + pageName.toLowerCase().replace(/ /g, '-');

@@ -235,7 +235,7 @@ export default function VendorLogin() {
               </Button>
             </form>
 
-            <div className="text-center">
+            <div className="text-center space-y-2">
               <p className="text-sm text-brand-dark/70">
                 Don't have an account?{" "}
                 <Link 
@@ -243,6 +243,14 @@ export default function VendorLogin() {
                   className="text-brand-primary hover:text-brand-primary/80 font-medium"
                 >
                   Sign up here
+                </Link>
+              </p>
+              <p className="text-sm text-brand-dark/70">
+                <Link 
+                  to={createPageUrl("VendorForgotPassword")}
+                  className="text-brand-primary hover:text-brand-primary/80 font-medium"
+                >
+                  Forgot your password?
                 </Link>
               </p>
             </div>
