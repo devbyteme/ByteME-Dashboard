@@ -168,7 +168,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   )}
                   <div className="border-t pt-2 flex justify-between items-center">
                     <p className="font-bold text-lg text-slate-900">Total</p>
-                    <p className="font-bold text-lg text-blue-600">${getFinalTotal().toFixed(2)}</p>
+                    <p className="font-bold text-lg text-brand-primary">${getFinalTotal().toFixed(2)}</p>
                   </div>
                   {calculateTip() > 0 && (
                     <div className="text-xs text-slate-600 text-center">
@@ -266,8 +266,8 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                       variant={formData.tip_percentage === percentage ? "default" : "outline"}
                       onClick={() => setFormData({...formData, tip_percentage: percentage, custom_tip: ""})}
                       className={`h-auto py-3 flex flex-col gap-1 ${formData.tip_percentage === percentage 
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' 
-                        : 'bg-white text-slate-900 border-slate-300 hover:bg-blue-50 hover:border-blue-300'
+                        ? 'bg-brand-primary hover:bg-brand-primary text-white border-brand-primary' 
+                        : 'bg-white text-slate-900 border-slate-300 hover:bg-orange-50 hover:border-brand-primary'
                       }`}
                     >
                       <span className="font-semibold">{percentage}%</span>
@@ -309,23 +309,23 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   onClick={() => setFormData({...formData, payment_method: 'cash'})}
                   className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                     formData.payment_method === 'cash' 
-                      ? 'border-blue-500 bg-blue-50 shadow-md' 
+                      ? 'border-brand-primary bg-orange-50 shadow-md' 
                       : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
-                    formData.payment_method === 'cash' ? 'border-blue-500' : 'border-slate-300'
+                    formData.payment_method === 'cash' ? 'border-brand-primary' : 'border-slate-300'
                   }`}>
                     {formData.payment_method === 'cash' && (
-                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
+                      <div className="w-2.5 h-2.5 bg-brand-primary rounded-full"></div>
                     )}
                   </div>
                   <div className="flex-1 flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${
-                      formData.payment_method === 'cash' ? 'bg-blue-100' : 'bg-slate-100'
+                      formData.payment_method === 'cash' ? 'bg-orange-100' : 'bg-slate-100'
                     }`}>
                       <Banknote className={`w-5 h-5 ${
-                        formData.payment_method === 'cash' ? 'text-blue-600' : 'text-slate-600'
+                        formData.payment_method === 'cash' ? 'text-brand-primary' : 'text-slate-600'
                       }`} />
                     </div>
                     <div>
@@ -339,23 +339,23 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   onClick={() => setFormData({...formData, payment_method: 'card'})}
                   className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                     formData.payment_method === 'card' 
-                      ? 'border-blue-500 bg-blue-50 shadow-md' 
+                      ? 'border-brand-primary bg-orange-50 shadow-md' 
                       : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
-                    formData.payment_method === 'card' ? 'border-blue-500' : 'border-slate-300'
+                    formData.payment_method === 'card' ? 'border-brand-primary' : 'border-slate-300'
                   }`}>
                     {formData.payment_method === 'card' && (
-                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
+                      <div className="w-2.5 h-2.5 bg-brand-primary rounded-full"></div>
                     )}
                   </div>
                   <div className="flex-1 flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${
-                      formData.payment_method === 'card' ? 'bg-blue-100' : 'bg-slate-100'
+                      formData.payment_method === 'card' ? 'bg-orange-100' : 'bg-slate-100'
                     }`}>
                       <CreditCard className={`w-5 h-5 ${
-                        formData.payment_method === 'card' ? 'text-blue-600' : 'text-slate-600'
+                        formData.payment_method === 'card' ? 'text-brand-primary' : 'text-slate-600'
                       }`} />
                     </div>
                     <div>
@@ -381,7 +381,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
             
             <Button 
               type="submit" 
-              className="w-full h-14 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] disabled:hover:scale-100"
+              className="w-full h-14 text-lg font-bold bg-brand-primary hover:bg-orange-600 text-white rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] disabled:hover:scale-100"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

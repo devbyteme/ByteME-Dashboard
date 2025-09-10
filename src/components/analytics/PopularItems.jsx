@@ -4,6 +4,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Award } from "lucide-react";
 
 export default function PopularItems({ popularItems }) {
+  console.log('PopularItems component received:', popularItems);
+  
   return (
     <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
       <CardHeader>
@@ -31,7 +33,10 @@ export default function PopularItems({ popularItems }) {
             <div className="text-center">
               <Award className="w-12 h-12 text-slate-300 mx-auto mb-4" />
               <p className="text-slate-500">No popular items data</p>
-              <p className="text-slate-400 text-sm">Chart will show when you receive orders</p>
+              <p className="text-slate-400 text-sm">Chart will show when you receive orders with items</p>
+              <p className="text-slate-300 text-xs mt-2">
+                Debug: popularItems = {JSON.stringify(popularItems)}
+              </p>
             </div>
           </div>
         )}

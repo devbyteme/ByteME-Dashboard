@@ -98,13 +98,16 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Logout functionality
-  const handleLogout = () => {
-    // Clear authentication data
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    
-    // Navigate to login page
-    navigate('/vendor-login');
+  const handleLogout = async () => {
+    try {
+      // Use the proper auth service logout method
+      await User.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Navigate to login page
+      navigate('/vendor-login');
+    }
   };
 
   const isAuthFlow = ["Welcome", "VendorLogin", "VendorRegistration"].includes(currentPageName);

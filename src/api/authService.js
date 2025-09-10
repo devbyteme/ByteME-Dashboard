@@ -21,10 +21,15 @@ class AuthService {
     console.log('🔐 AuthService: Vendor auth data stored successfully');
   }
 
-  // Clear authentication data
+  // Clear authentication data (vendor-specific only)
   clearAuth() {
+    // Clear only vendor-specific auth tokens and user data
     localStorage.removeItem('vendorAuthToken');
     localStorage.removeItem('vendorUser');
+    localStorage.removeItem('authToken'); // Legacy support
+    localStorage.removeItem('user'); // Legacy support
+    
+    console.log('🔐 AuthService: Vendor authentication data cleared from localStorage');
   }
 
   // Get current user from localStorage

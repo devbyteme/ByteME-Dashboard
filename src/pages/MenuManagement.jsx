@@ -31,6 +31,14 @@ export default function MenuManagement() {
     checkAuth();
   }, []);
 
+  // Load menu items when vendor changes
+  useEffect(() => {
+    if (vendor && vendor._id) {
+      console.log("Vendor changed, loading menu items for:", vendor._id);
+      loadMenuItems(vendor._id);
+    }
+  }, [vendor]);
+
   // Test backend connectivity
   useEffect(() => {
     const testBackend = async () => {
@@ -73,8 +81,9 @@ export default function MenuManagement() {
 
       console.log("Setting vendor and loading menu items...");
       setVendor(currentUser);
-      // Load menu items after vendor is set
+      // Load menu items and categories after vendor is set
       loadMenuItems(currentUser._id);
+      loadCategories();
     } catch (error) {
       console.error("Auth check error:", error);
       setError("Authentication failed. Please sign in again.");
@@ -108,6 +117,18 @@ export default function MenuManagement() {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const response = await Category.list();
+      if (response.success) {
+        setCategories(response.data || []);
+        console.log("Categories loaded:", response.data);
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
+
   const handleSaveItem = async (itemData) => {
     try {
       setIsSaving(true);
@@ -128,12 +149,29 @@ export default function MenuManagement() {
         }
       } else {
         // Create new item
+        console.log("Creating new menu item with data:", itemData);
         const response = await menuService.create(itemData);
+        console.log("Create menu item response:", response);
         
         if (response.success) {
-          setMenuItems([...menuItems, response.data]);
+          console.log("Menu item created successfully, adding to list:", response.data);
+          // Add the new item to the list
+          setMenuItems(prevItems => {
+            const newItems = [...prevItems, response.data];
+            console.log("Updated menu items list:", newItems);
+            return newItems;
+          });
           setShowForm(false);
+          
+          // Also refresh the list from server to ensure consistency
+          setTimeout(async () => {
+            if (vendor) {
+              console.log("Refreshing menu items from server after creation");
+              await loadMenuItems(vendor._id);
+            }
+          }, 1000);
         } else {
+          console.error("Failed to create menu item:", response);
           setError("Failed to create menu item");
         }
       }
@@ -202,7 +240,21 @@ export default function MenuManagement() {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (item.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const isVisible = matchesSearch && matchesCategory;
+    
+    // Debug logging for newly created items
+    if (item._id && item.createdAt && new Date(item.createdAt) > new Date(Date.now() - 60000)) {
+      console.log("Recently created item filtering:", {
+        item: item.name,
+        category: item.category,
+        selectedCategory,
+        matchesSearch,
+        matchesCategory,
+        isVisible
+      });
+    }
+    
+    return isVisible;
   });
 
   // Create category options for filtering (including "all" option)

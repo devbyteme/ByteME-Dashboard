@@ -53,7 +53,11 @@ export default function Analytics() {
 
   const loadOrders = async () => {
     try {
-      const response = await Order.list();
+      console.log('Loading orders for analytics...');
+      // Request more orders for better analytics (limit 1000)
+      const response = await Order.list(null, null, null, 1000, 1);
+      console.log('Orders API response:', response);
+      
       if (response.success) {
         // Transform the data to match the expected format for analytics
         const transformedOrders = response.data.map(order => ({
@@ -68,6 +72,14 @@ export default function Analytics() {
         }));
         setOrders(transformedOrders);
         console.log(`Loaded ${transformedOrders.length} orders for analytics`);
+        console.log('Sample order items:', transformedOrders[0]?.items);
+        
+        // Check if any orders have items
+        const ordersWithItems = transformedOrders.filter(order => order.items && order.items.length > 0);
+        console.log(`Orders with items: ${ordersWithItems.length}`);
+        if (ordersWithItems.length > 0) {
+          console.log('Sample order with items:', ordersWithItems[0]);
+        }
       } else {
         console.error("Failed to load orders:", response.message);
         setError("Failed to load order data for analytics");
@@ -102,17 +114,26 @@ export default function Analytics() {
   };
 
   const getPopularItems = () => {
+    console.log('Calculating popular items from orders:', orders.length);
     const itemCounts = {};
-    orders.forEach(order => {
+    
+    orders.forEach((order, orderIndex) => {
+      console.log(`Order ${orderIndex + 1} items:`, order.items);
       order.items?.forEach(item => {
+        console.log(`Processing item: ${item.name}, quantity: ${item.quantity}`);
         itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;
       });
     });
     
-    return Object.entries(itemCounts)
+    console.log('Item counts:', itemCounts);
+    
+    const popularItems = Object.entries(itemCounts)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 10)
       .map(([name, count]) => ({ name, count }));
+    
+    console.log('Popular items result:', popularItems);
+    return popularItems;
   };
 
   const getDailyRevenue = () => {

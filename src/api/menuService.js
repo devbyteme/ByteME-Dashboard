@@ -31,7 +31,10 @@ export const menuService = {
 
   // Create new menu item
   async create(menuItem) {
-    return api.post('/menu/menu-items', menuItem);
+    console.log('MenuService.create called with:', menuItem);
+    const response = await api.post('/menu/menu-items', menuItem);
+    console.log('MenuService.create response:', response);
+    return response;
   },
 
   // Update menu item

@@ -31,6 +31,14 @@ export default function Dashboard() {
     checkAuthAndLoadData();
   }, []);
 
+  // Reload data when vendor changes (fallback)
+  useEffect(() => {
+    if (vendor && vendor._id) {
+      loadMenuItems(vendor._id);
+      loadTables(vendor._id);
+    }
+  }, [vendor]);
+
   const checkAuthAndLoadData = async () => {
     try {
       setIsLoading(true);
@@ -52,12 +60,13 @@ export default function Dashboard() {
       }
 
       setVendor(currentVendor);
+      console.log('Vendor set:', currentVendor);
 
       // Load all dashboard data in parallel
       await Promise.all([
         loadOrders(),
-        loadMenuItems(),
-        loadTables()
+        loadMenuItems(currentVendor._id),
+        loadTables(currentVendor._id)
       ]);
 
     } catch (error) {
@@ -97,12 +106,18 @@ export default function Dashboard() {
     }
   };
 
-  const loadMenuItems = async () => {
+  const loadMenuItems = async (vendorId) => {
     try {
-      const response = await MenuItem.list();
+      // Only load menu items if we have a vendor ID
+      if (!vendorId) {
+        console.log("No vendor ID provided for loading menu items");
+        return;
+      }
+      
+      const response = await MenuItem.list(vendorId);
       if (response.success) {
         setMenuItems(response.data);
-        console.log(`Loaded ${response.data.length} menu items`);
+        console.log(`Loaded ${response.data.length} menu items for vendor ${vendorId}`);
       } else {
         console.error("Failed to load menu items:", response.message);
       }
@@ -111,12 +126,18 @@ export default function Dashboard() {
     }
   };
 
-  const loadTables = async () => {
+  const loadTables = async (vendorId) => {
     try {
-      const response = await Table.list();
+      // Only load tables if we have a vendor ID
+      if (!vendorId) {
+        console.log("No vendor ID provided for loading tables");
+        return;
+      }
+      
+      const response = await Table.list(vendorId);
       if (response.success) {
         setTables(response.data);
-        console.log(`Loaded ${response.data.length} tables`);
+        console.log(`Loaded ${response.data.length} tables for vendor ${vendorId}`);
       } else {
         console.error("Failed to load tables:", response.message);
       }

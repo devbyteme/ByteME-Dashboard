@@ -290,24 +290,30 @@ export default function CustomerMenu() {
     }
   };
 
-  const handleLogout = () => {
-    if (isGuestMode) {
-      // Clear guest session
-    localStorage.removeItem('guestSession');
-    localStorage.removeItem('guestTimestamp');
-      localStorage.removeItem('guestVendorId');
-      localStorage.removeItem('guestTableNumber');
-    } else {
-      // Clear customer authentication
+  const handleLogout = async () => {
+    try {
+      if (isGuestMode) {
+        // Clear only guest session data
+        localStorage.removeItem('guestSession');
+        localStorage.removeItem('guestTimestamp');
+        localStorage.removeItem('guestVendorId');
+        localStorage.removeItem('guestTableNumber');
+      } else {
+        // Clear customer authentication and call backend logout
+        await customerAuthService.logout();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear local data even if backend call fails
       customerAuthService.clearAuth();
+    } finally {
+      setUser(null);
+      setIsGuestMode(false);
+      setCart([]);
+      
+      // Redirect to auth page
+      navigate(`/customer-auth?restaurant=${vendorId}&table=${tableNumber}`);
     }
-    
-    setUser(null);
-    setIsGuestMode(false);
-    setCart([]);
-    
-    // Redirect to auth page
-    navigate(`/customer-auth?restaurant=${vendorId}&table=${tableNumber}`);
   };
 
   const handleAuthRedirect = () => {
@@ -349,9 +355,8 @@ export default function CustomerMenu() {
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo and Restaurant Info */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <ByteMeLogo variant="icon" size="small" />
+            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 h-10" />
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-brand-dark">ByteMe</h1>
                 <p className="text-xs sm:text-sm text-brand-dark/70">Table {tableNumber}</p>
               </div>
             </div>
@@ -587,7 +592,7 @@ export default function CustomerMenu() {
                         <h3 className="font-semibold text-slate-900 text-base sm:text-lg truncate">{item.name}</h3>
                         <p className="text-slate-600 text-sm mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="text-base sm:text-lg font-bold text-blue-600">${item.price}</span>
+                          <span className="text-base sm:text-lg font-bold text-black">${item.price}</span>
                           <span className="text-xs sm:text-sm text-slate-500">each</span>
                         </div>
                       </div>
@@ -646,7 +651,7 @@ export default function CustomerMenu() {
                 <div className="border-t border-slate-300 pt-3">
                   <div className="flex justify-between items-center text-lg sm:text-xl font-bold text-slate-900 mb-2">
                     <span>Subtotal</span>
-                    <span className="text-blue-600">${getCartTotal().toFixed(2)}</span>
+                    <span className="text-black">${getCartTotal().toFixed(2)}</span>
                   </div>
                   <div className="text-xs text-slate-500 text-center mb-3 sm:mb-4">
                     Tip and final total calculated at checkout
