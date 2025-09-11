@@ -22,9 +22,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # - name: Write Secret to File
-      #   run: echo "${{ secrets.ENVSECRET }}" > .env
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -37,3 +34,20 @@ jobs:
           docker build -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} -t ${{ env.IMAGE }}:latest .
           docker push ${{ env.IMAGE }}:${{ env.TIMESTAMP }}
           docker push ${{ env.IMAGE }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
+          chmod 600 ~/.ssh/ec2-key.pem
+          ssh-keyscan -H ${{ secrets.PUBLIC_DNS }} >> ~/.ssh/known_hosts
+
+      - name: Run deployment script on EC2
+        run: |
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme && ./deploy.sh"
