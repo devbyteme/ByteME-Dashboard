@@ -52,4 +52,4 @@ jobs:
 
       - name: Run deployment script on EC2
         run: |
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme && ./deploy.sh"
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme/dashboard && ./deploy.sh"
