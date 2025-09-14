@@ -202,7 +202,7 @@ export default function CustomerAuthPage() {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
     
           </div>
           

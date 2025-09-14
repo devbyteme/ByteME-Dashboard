@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Download, QrCode } from "lucide-react";
+import { Plus, Download, QrCode, Loader2 } from "lucide-react";
 import { User } from "@/api";
 import { tableService } from "@/api";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,7 @@ export default function QRGenerator() {
   });
   const [vendor, setVendor] = useState(null);
   const [error, setError] = useState("");
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -155,38 +156,97 @@ export default function QRGenerator() {
   };
 
   const downloadAllQRCodes = async () => {
-    const printWindow = window.open('', '_blank');
-    const qrCodesHTML = tables.map(table => {
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(table.qr_code_url)}`;
-      return `
-        <div style="page-break-inside: avoid; margin: 20px; text-align: center; border: 1px solid #ccc; padding: 20px;">
-          <h3>Table ${table.table_number}</h3>
-          <img src="${qrUrl}" alt="QR Code for Table ${table.table_number}" style="width: 200px; height: 200px;"/>
-          <p>Location: ${table.location || 'Main dining'}</p>
-          <p style="font-size: 10px; margin-top: 10px; word-break: break-all;">${table.qr_code_url}</p>
-        </div>
-      `;
-    }).join('');
-    
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>QR Codes - All Tables</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-            @media print { @page { size: A4; margin: 1cm; } }
-          </style>
-        </head>
-        <body>
-          <h1 style="text-align: center; margin-bottom: 30px;">Restaurant QR Codes</h1>
-          <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-            ${qrCodesHTML}
+    setIsDownloadingAll(true);
+    try {
+      // Create a print-friendly window
+      const printWindow = window.open('', '_blank');
+      
+      // Generate HTML with QR codes
+      const qrCodesHTML = tables.map(table => {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(table.qr_code_url)}`;
+        return `
+          <div style="page-break-inside: avoid; margin: 20px; text-align: center; border: 1px solid #ccc; padding: 20px;">
+            <h3>Table ${table.table_number}</h3>
+            <img src="${qrUrl}" alt="QR Code for Table ${table.table_number}" style="width: 200px; height: 200px;"/>
+            <p>Location: ${table.location || 'Main dining'}</p>
+            <p style="font-size: 10px; margin-top: 10px; word-break: break-all;">${table.qr_code_url}</p>
           </div>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+        `;
+      }).join('');
+      
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>QR Codes - All Tables</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+              @media print { 
+                @page { size: A4; margin: 1cm; } 
+                .no-print { display: none; }
+              }
+              .download-btn {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #3b82f6;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                z-index: 1000;
+              }
+            </style>
+          </head>
+          <body>
+            <button class="download-btn no-print" onclick="downloadAllAsZip()">Download All as ZIP</button>
+            <h1 style="text-align: center; margin-bottom: 30px;">Restaurant QR Codes</h1>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+              ${qrCodesHTML}
+            </div>
+            <script>
+              async function downloadAllAsZip() {
+                try {
+                  const tables = ${JSON.stringify(tables)};
+                  const zip = new JSZip();
+                  
+                  for (const table of tables) {
+                    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + encodeURIComponent(table.qr_code_url);
+                    const response = await fetch(qrUrl);
+                    const blob = await response.blob();
+                    zip.file('table-' + table.table_number + '-qr.png', blob);
+                  }
+                  
+                  const content = await zip.generateAsync({type: 'blob'});
+                  const url = URL.createObjectURL(content);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = 'restaurant-qr-codes.zip';
+                  link.click();
+                  URL.revokeObjectURL(url);
+                } catch (error) {
+                  console.error('Error creating ZIP:', error);
+                  alert('Error creating ZIP file. Please try downloading individual QR codes.');
+                }
+              }
+            </script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      
+      // Auto-print after a short delay to ensure images are loaded
+      setTimeout(() => {
+        printWindow.print();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error generating QR codes for printing:', error);
+      setError('Failed to generate QR codes for printing');
+    } finally {
+      setIsDownloadingAll(false);
+    }
   };
 
   if (!vendor) {
@@ -221,10 +281,15 @@ export default function QRGenerator() {
             <Button 
               variant="outline" 
               onClick={downloadAllQRCodes}
+              disabled={isDownloadingAll}
               className="gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
             >
-              <Download className="w-4 h-4" />
-              Download All QR
+              {isDownloadingAll ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {isDownloadingAll ? 'Generating...' : 'Download All QR'}
             </Button>
           )}
           <Button 

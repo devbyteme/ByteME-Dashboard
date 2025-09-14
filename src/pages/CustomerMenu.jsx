@@ -349,22 +349,37 @@ export default function CustomerMenu() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Mobile-specific styles */}
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+          }
+          
+          .mobile-button {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+          }
+        }
+      `}</style>
+      
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo and Restaurant Info */}
             <div className="flex items-center gap-2 sm:gap-3">
-            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 h-10" />
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 h-10" />
               <div>
                 <p className="text-xs sm:text-sm text-brand-dark/70">Table {tableNumber}</p>
               </div>
             </div>
             
             {/* User Actions */}
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-1 sm:gap-4">
               {user ? (
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1 sm:gap-3">
                   <span className="hidden sm:block text-sm text-slate-600">
                     Welcome, {user.firstName || user.name || 'Guest'}
                   </span>
@@ -372,7 +387,8 @@ export default function CustomerMenu() {
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
-                    className="h-8 sm:h-9 px-2 sm:px-3"
+                    className="h-10 w-10 sm:h-9 sm:w-auto sm:px-3 p-0 sm:p-2 touch-manipulation touch-target mobile-button"
+                    title={isGuestMode ? 'Exit Guest Mode' : 'Sign Out'}
                   >
                     <LogOut className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">
@@ -385,7 +401,8 @@ export default function CustomerMenu() {
                   variant="outline"
                   size="sm"
                   onClick={handleAuthRedirect}
-                  className="h-8 sm:h-9 px-2 sm:px-3"
+                  className="h-10 w-10 sm:h-9 sm:w-auto sm:px-3 p-0 sm:p-2 touch-manipulation touch-target mobile-button"
+                  title="Sign In"
                 >
                   <User className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Sign In</span>
@@ -397,7 +414,8 @@ export default function CustomerMenu() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowCart(!showCart)}
-                className="relative h-8 sm:h-9 px-2 sm:px-3"
+                className="relative h-10 w-10 sm:h-9 sm:w-auto sm:px-3 p-0 sm:p-2 touch-manipulation touch-target mobile-button"
+                title="View Cart"
               >
                 <ShoppingCart className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Cart</span>
@@ -513,7 +531,8 @@ export default function CustomerMenu() {
                   <Button
                     size="sm"
                     onClick={() => addToCart(item)}
-                    className="h-8 sm:h-9 px-3 sm:px-4 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                    className="h-9 sm:h-9 px-3 sm:px-4 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 touch-manipulation touch-target mobile-button"
+                    title="Add to cart"
                   >
                     <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
                     <span className="hidden sm:inline">Add</span>
@@ -543,7 +562,7 @@ export default function CustomerMenu() {
         <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-40 px-4 w-full max-w-sm">
           <Button
             onClick={() => setShowCart(true)}
-                          className="bg-brand-primary hover:bg-brand-primary/90 text-brand-white shadow-xl px-4 sm:px-6 py-3 rounded-full h-12 sm:h-14 flex items-center gap-2 sm:gap-3 w-full justify-between transition-all duration-300 hover:scale-105 active:scale-95"
+            className="bg-brand-primary hover:bg-brand-primary/90 text-brand-white shadow-xl px-4 sm:px-6 py-3 rounded-full h-12 sm:h-14 flex items-center gap-2 sm:gap-3 w-full justify-between transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation touch-target mobile-button"
           >
             <div className="flex items-center gap-2">
               <div className="bg-white/20 rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center">
@@ -570,7 +589,8 @@ export default function CustomerMenu() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowCart(false)}
-                className="h-8 w-8 sm:h-10 sm:w-10 hover:bg-white/50 rounded-full"
+                className="h-10 w-10 sm:h-10 sm:w-10 hover:bg-white/50 rounded-full touch-manipulation touch-target mobile-button"
+                title="Close Cart"
               >
                 <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
@@ -604,12 +624,13 @@ export default function CustomerMenu() {
                           size="sm"
                           variant="ghost"
                           onClick={() => removeFromCart(item._id)}
-                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors p-0"
+                          className="h-8 w-8 sm:h-8 sm:w-8 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors p-0 touch-manipulation touch-target mobile-button"
+                          title="Remove one"
                         >
                           <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Button>
                         
-                        <span className="w-6 sm:w-8 text-center font-bold text-slate-900 text-base sm:text-lg">
+                        <span className="w-8 sm:w-8 text-center font-bold text-slate-900 text-base sm:text-lg">
                           {item.quantity}
                         </span>
                         
@@ -617,7 +638,8 @@ export default function CustomerMenu() {
                           size="sm"
                           variant="ghost"
                           onClick={() => addToCart(item)}
-                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full hover:bg-green-100 hover:text-green-600 transition-colors p-0"
+                          className="h-8 w-8 sm:h-8 sm:w-8 rounded-full hover:bg-green-100 hover:text-green-600 transition-colors p-0 touch-manipulation touch-target mobile-button"
+                          title="Add one"
                         >
                           <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Button>
@@ -659,7 +681,7 @@ export default function CustomerMenu() {
                   
                   <Button
                     onClick={handleCheckout}
-                    className="w-full h-11 sm:h-12 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-semibold text-base sm:text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95"
+                    className="w-full h-12 sm:h-12 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-semibold text-base sm:text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95 touch-manipulation touch-target mobile-button"
                     disabled={cart.length === 0}
                   >
                     <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />

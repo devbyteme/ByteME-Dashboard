@@ -41,7 +41,7 @@ const ByteMeLogo = ({
   if (variant === 'text') {
     return (
       <div className={`flex items-center ${className}`}>
-        <img src="/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-10 h-10" />
+        <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-10 h-10" />
         <div className="flex flex-col">
           {showTagline && (
             <span className="text-xs text-brand-dark/70 font-medium">

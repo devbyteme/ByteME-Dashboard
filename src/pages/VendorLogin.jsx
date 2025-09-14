@@ -130,7 +130,7 @@ export default function VendorLogin() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
                       <div className="flex items-center gap-3 text-brand-dark">
-            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
           </div>
         </div>
 

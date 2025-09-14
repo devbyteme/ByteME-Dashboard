@@ -73,7 +73,7 @@ export default function VendorForgotPassword() {
           {/* Header */}
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-12 h-12" />
+              <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-12 h-12" />
               <h1 className="text-2xl font-bold text-brand-dark">ByteMe</h1>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function VendorForgotPassword() {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-12 h-12" />
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-12 h-12" />
             <h1 className="text-2xl font-bold text-brand-dark">ByteMe</h1>
           </div>
         </div>

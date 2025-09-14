@@ -78,7 +78,7 @@ export default function CustomerProfile() {
               </Button>
             </Link>
             <div className="flex items-center gap-3">
-              <img src="/src/assets/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-10 h-10" />
+              <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-10 h-10" />
               <div>
                 <h1 className="text-xl font-bold text-brand-dark">My Profile</h1>
                 <p className="text-sm text-brand-dark/70">{user?.email}</p>

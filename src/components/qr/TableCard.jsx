@@ -1,9 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Eye, MapPin, Trash2 } from "lucide-react";
+import { Download, Eye, MapPin, Trash2, Loader2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import {
   AlertDialog,
@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function TableCard({ table, onDelete }) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  
   // Handle vendorId - it could be a string ID or a populated object
   const vendorId = typeof table.vendorId === 'object' ? table.vendorId._id : table.vendorId;
   const vendorName = typeof table.vendorId === 'object' ? table.vendorId.name : 'Unknown Vendor';
@@ -25,11 +27,40 @@ export default function TableCard({ table, onDelete }) {
   const menuUrl = `${window.location.origin}${createPageUrl("CustomerMenu")}?restaurant=${vendorId}&table=${table.table_number}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(menuUrl)}`;
 
-  const downloadQR = () => {
-    const link = document.createElement('a');
-    link.href = qrUrl;
-    link.download = `table-${table.table_number}-qr.png`;
-    link.click();
+  const downloadQR = async () => {
+    setIsDownloading(true);
+    try {
+      // Fetch the QR code image
+      const response = await fetch(qrUrl);
+      if (!response.ok) {
+        throw new Error('Failed to fetch QR code');
+      }
+      
+      // Convert to blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `table-${table.table_number}-qr.png`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log(`QR code downloaded for Table ${table.table_number}`);
+    } catch (error) {
+      console.error('Error downloading QR code:', error);
+      // Fallback: open in new tab
+      window.open(qrUrl, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const previewMenu = () => {
@@ -83,9 +114,14 @@ export default function TableCard({ table, onDelete }) {
             size="sm" 
             className="flex-1 bg-blue-900 hover:bg-blue-800"
             onClick={downloadQR}
+            disabled={isDownloading}
           >
-            <Download className="w-4 h-4 mr-2" />
-            Download
+            {isDownloading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 mr-2" />
+            )}
+            {isDownloading ? 'Downloading...' : 'Download'}
           </Button>
         </div>
         
