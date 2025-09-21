@@ -33,7 +33,7 @@ const sampleOrders = [
 
 const samplePerks = [
   { id: '1', title: '15% Off Your Next Main Course', description: 'Enjoy a discount on any main course.', type: 'discount', value: 15, valid_until: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(), minimum_spend: 20 },
-  { id: '2', title: 'Free Dessert', description: 'Get a free dessert with any order over $50.', type: 'free_item', value: 1, valid_until: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), minimum_spend: 50 },
+  { id: '2', title: 'Free Dessert', description: 'Get a free dessert with any order over LKR 50.', type: 'free_item', value: 1, valid_until: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), minimum_spend: 50 },
 ];
 // --- End Sample Data ---
 
@@ -108,7 +108,7 @@ export default function CustomerProfile() {
                 <div>
                   <p className="text-sm text-brand-dark/70">Total Spent</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${orders.reduce((sum, order) => sum + (order.final_amount || 0), 0).toFixed(2)}
+                    LKR {orders.reduce((sum, order) => sum + (order.final_amount || 0), 0).toFixed(2)}
                   </p>
                 </div>
                 <CreditCard className="w-8 h-8 text-green-600" />
@@ -163,11 +163,11 @@ export default function CustomerProfile() {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-brand-dark">
-                            ${(order.final_amount || 0).toFixed(2)}
+                            LKR {(order.final_amount || 0).toFixed(2)}
                           </p>
                           {order.tip_amount > 0 && (
                             <p className="text-xs text-brand-dark/50">
-                              (inc. ${order.tip_amount.toFixed(2)} tip)
+                              (inc. LKR {order.tip_amount.toFixed(2)} tip)
                             </p>
                           )}
                         </div>

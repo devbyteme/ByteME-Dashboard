@@ -90,7 +90,7 @@ const OrderProgress = ({ order }) => {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-lg font-bold text-slate-900">${order.totalAmount?.toFixed(2) || '0.00'}</p>
+              <p className="text-lg font-bold text-slate-900">LKR {order.totalAmount?.toFixed(2) || '0.00'}</p>
               <p className="text-sm text-slate-600">
                 {order.estimatedPreparationTime ? `${order.estimatedPreparationTime} min` : 'Time not specified'}
               </p>
@@ -112,7 +112,7 @@ const OrderProgress = ({ order }) => {
                 {order.items?.map((item, index) => (
                   <div key={index} className="flex justify-between text-sm">
                     <span>{item.quantity}x {item.name}</span>
-                    <span className="text-slate-600">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="text-slate-600">LKR {(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -144,7 +144,7 @@ export default function CustomerOrder() {
   const [tableNumber, setTableNumber] = useState("");
   const [restaurantId, setRestaurantId] = useState("");
   const [user, setUser] = useState(null);
-  const [activeCategory, setActiveCategory] = useState("appetizers");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [currentOrder, setCurrentOrder] = useState(null);
   const [orderLoading, setOrderLoading] = useState(false);
 
@@ -265,17 +265,29 @@ export default function CustomerOrder() {
     alert("Logout functionality is disabled in this disconnected version.");
   };
 
-  const categories = [
-    { value: "appetizers", label: "Appetizers" },
-    { value: "mains", label: "Mains" },
-    { value: "desserts", label: "Desserts" },
-    { value: "beverages", label: "Beverages" },
-    { value: "wine", label: "Wine" },
-    { value: "cocktails", label: "Cocktails" },
-    { value: "coffee", label: "Coffee" }
-  ];
+  // Generate categories dynamically from menu items
+  const categories = React.useMemo(() => {
+    if (!menuItems || menuItems.length === 0) {
+      return [{ value: "all", label: "All" }];
+    }
+    
+    // Extract unique categories from menu items
+    const uniqueCategories = [...new Set(menuItems.map(item => item.category).filter(Boolean))];
+    
+    // Sort categories alphabetically and add "all" at the beginning
+    const sortedCategories = uniqueCategories.sort();
+    return [
+      { value: "all", label: "All" },
+      ...sortedCategories.map(category => ({
+        value: category,
+        label: category.charAt(0).toUpperCase() + category.slice(1)
+      }))
+    ];
+  }, [menuItems]);
 
-  const filteredItems = menuItems.filter(item => item.category === activeCategory);
+  const filteredItems = activeCategory === "all" 
+    ? menuItems 
+    : menuItems.filter(item => item.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">

@@ -192,6 +192,46 @@ class AuthService {
       throw error;
     }
   }
+
+  // Update user profile (personal information)
+  async updateProfile(profileData) {
+    try {
+      const response = await api.put('/auth/me', profileData);
+      
+      if (response.success) {
+        // Update stored user data
+        const updatedUser = response.data;
+        updatedUser.userType = updatedUser.userType || 'vendor';
+        localStorage.setItem('vendorUser', JSON.stringify(updatedUser));
+      }
+      
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Update vendor profile (restaurant information)
+  async updateVendorProfile(vendorData) {
+    try {
+      const response = await api.put('/vendors/profile', vendorData);
+      
+      if (response.success) {
+        // Update stored user data with vendor information
+        const currentUser = this.getCurrentUser();
+        const updatedUser = {
+          ...currentUser,
+          ...response.data,
+          userType: 'vendor'
+        };
+        localStorage.setItem('vendorUser', JSON.stringify(updatedUser));
+      }
+      
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new AuthService(); 

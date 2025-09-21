@@ -87,7 +87,7 @@ export default function OrderCard({ order, onStatusUpdate }) {
                 <span className="text-slate-600">
                   {item.quantity}x {item.name}
                 </span>
-                <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-medium">LKR {(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
@@ -163,20 +163,20 @@ export default function OrderCard({ order, onStatusUpdate }) {
               <div className="space-y-1">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-600">Subtotal:</span>
-                  <span className="text-slate-900">${(order.total_amount - order.tipAmount).toFixed(2)}</span>
+                  <span className="text-slate-900">LKR {(order.total_amount - order.tipAmount).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-600">Tip:</span>
-                  <span className="text-slate-900">${order.tipAmount.toFixed(2)}</span>
+                  <span className="text-slate-900">LKR {order.tipAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-lg font-bold text-slate-900 border-t pt-1">
                   <span>Total:</span>
-                  <span>${order.total_amount.toFixed(2)}</span>
+                  <span>LKR {order.total_amount.toFixed(2)}</span>
                 </div>
               </div>
             ) : (
               <p className="text-lg font-bold text-slate-900">
-                ${order.total_amount.toFixed(2)}
+                LKR {order.total_amount.toFixed(2)}
               </p>
             )}
             {order.estimated_time && (

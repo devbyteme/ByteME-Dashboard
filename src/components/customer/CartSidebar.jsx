@@ -36,7 +36,7 @@ export default function CartSidebar({ cart, onClose, onUpdateQuantity, onRemoveI
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h4 className="font-semibold text-slate-900">{item.name}</h4>
-                      <p className="text-sm text-slate-600">${item.price.toFixed(2)} each</p>
+                      <p className="text-sm text-slate-600">LKR {item.price.toFixed(2)} each</p>
                     </div>
                     <Button
                       variant="ghost"
@@ -71,7 +71,7 @@ export default function CartSidebar({ cart, onClose, onUpdateQuantity, onRemoveI
                     
                     <div className="text-right">
                       <p className="font-bold text-slate-900">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        LKR {(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -82,7 +82,7 @@ export default function CartSidebar({ cart, onClose, onUpdateQuantity, onRemoveI
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-lg font-semibold text-slate-900">Total:</span>
                   <span className="text-2xl font-bold text-blue-900">
-                    ${total.toFixed(2)}
+                    LKR {total.toFixed(2)}
                   </span>
                 </div>
                 

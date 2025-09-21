@@ -62,8 +62,8 @@ export default function MenuStats({ menuItems }) {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Avg Price</p>
-              <p className="text-2xl font-bold text-amber-600">${averagePrice.toFixed(2)}</p>
+              <p className="text-sm text-slate-600">Avg Price(LKR)</p>
+              <p className="text-2xl font-bold text-amber-600">{averagePrice.toFixed(2)}</p>
             </div>
             <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center">
               <DollarSign className="w-5 h-5 text-white" />

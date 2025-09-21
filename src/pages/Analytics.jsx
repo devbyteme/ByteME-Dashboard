@@ -235,8 +235,8 @@ export default function Analytics() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-emerald-100 text-sm">Today's Revenue</p>
-                    <p className="text-2xl font-bold">${todayRevenue.toFixed(2)}</p>
+                    <p className="text-emerald-100 text-sm">Today's Revenue(LKR)</p>
+                    <p className="text-2xl font-bold">{todayRevenue.toFixed(2)}</p>
                     <p className="text-emerald-200 text-xs mt-1">
                       {orders.filter(order => {
                         const orderDate = new Date(order.created_date);
@@ -254,8 +254,8 @@ export default function Analytics() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-sm">Weekly Revenue</p>
-                    <p className="text-2xl font-bold">${weekRevenue.toFixed(2)}</p>
+                    <p className="text-blue-100 text-sm">Weekly Revenue(LKR)</p>
+                    <p className="text-2xl font-bold">{weekRevenue.toFixed(2)}</p>
                     <p className="text-blue-200 text-xs mt-1">
                       Last 7 days
                     </p>
@@ -269,8 +269,8 @@ export default function Analytics() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-amber-100 text-sm">Monthly Revenue</p>
-                    <p className="text-2xl font-bold">${monthRevenue.toFixed(2)}</p>
+                    <p className="text-amber-100 text-sm">Monthly Revenue(LKR)</p>
+                    <p className="text-2xl font-bold">{monthRevenue.toFixed(2)}</p>
                     <p className="text-amber-200 text-xs mt-1">
                       Current month
                     </p>
@@ -284,8 +284,8 @@ export default function Analytics() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100 text-sm">Avg Order Value</p>
-                    <p className="text-2xl font-bold">${averageOrderValue.toFixed(2)}</p>
+                    <p className="text-purple-100 text-sm">Avg Order Value(LKR)</p>
+                    <p className="text-2xl font-bold">{averageOrderValue.toFixed(2)}</p>
                     <p className="text-purple-200 text-xs mt-1">
                       All time average
                     </p>

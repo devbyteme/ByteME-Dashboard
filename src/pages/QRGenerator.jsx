@@ -24,7 +24,8 @@ export default function QRGenerator() {
   const [showForm, setShowForm] = useState(false);
   const [newTable, setNewTable] = useState({
     table_number: "",
-    location: ""
+    location: "",
+    capacity: 4
   });
   const [vendor, setVendor] = useState(null);
   const [error, setError] = useState("");
@@ -71,6 +72,7 @@ export default function QRGenerator() {
             id: table._id,
             table_number: table.number,
             location: table.location,
+            capacity: table.capacity || 4, // Default to 4 if not set
             vendorId: table.vendorId, // Keep the full object for display
             qr_code_url: createCustomerMenuUrl(tableVendorId, table.number),
             status: table.status
@@ -100,6 +102,7 @@ export default function QRGenerator() {
       const tableData = {
         number: newTable.table_number,
         location: newTable.location,
+        capacity: parseInt(newTable.capacity),
         vendorId: vendor._id
       };
       
@@ -115,6 +118,7 @@ export default function QRGenerator() {
           id: createdTable._id,
           table_number: createdTable.number,
           location: createdTable.location,
+          capacity: createdTable.capacity,
           vendorId: createdTable.vendorId, // Keep the full object for display
           qr_code_url: createCustomerMenuUrl(vendorId, createdTable.number),
           status: createdTable.status
@@ -122,7 +126,7 @@ export default function QRGenerator() {
         
         setTables([...tables, tableToAdd]);
         setShowForm(false);
-        setNewTable({ table_number: "", location: "" });
+        setNewTable({ table_number: "", location: "", capacity: 4 });
         setError("");
       } else {
         setError(response.message || "Failed to create table");
@@ -318,7 +322,7 @@ export default function QRGenerator() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateTable} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="table_number" className="text-slate-700">Table Number</Label>
                   <Input
@@ -338,6 +342,20 @@ export default function QRGenerator() {
                     onChange={(e) => setNewTable({...newTable, location: e.target.value})}
                     placeholder="e.g., Window side, Patio"
                     className="bg-white text-slate-900"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="capacity" className="text-slate-700">Number of Seats</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={newTable.capacity}
+                    onChange={(e) => setNewTable({...newTable, capacity: parseInt(e.target.value) || 4})}
+                    placeholder="4"
+                    className="bg-white text-slate-900"
+                    required
                   />
                 </div>
               </div>

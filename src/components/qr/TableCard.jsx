@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Eye, MapPin, Trash2, Loader2 } from "lucide-react";
+import { Download, Eye, MapPin, Trash2, Loader2, Users } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import {
   AlertDialog,
@@ -91,6 +91,12 @@ export default function TableCard({ table, onDelete }) {
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
               <span>{table.location}</span>
+            </div>
+          )}
+          {table.capacity && (
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <span>{table.capacity} seats</span>
             </div>
           )}
           <div className="text-xs text-slate-500">

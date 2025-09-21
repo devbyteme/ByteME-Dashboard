@@ -109,7 +109,7 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">Price (LKR)</Label>
               <Input
                 id="price"
                 type="number"

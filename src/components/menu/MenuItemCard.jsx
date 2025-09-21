@@ -42,7 +42,7 @@ export default function MenuItemCard({ item, onEdit, onToggleAvailability, onDel
               {item.name}
             </CardTitle>
             <p className="text-xl font-bold text-blue-900 mt-1">
-              ${item.price.toFixed(2)}
+              LKR {item.price.toFixed(2)}
             </p>
           </div>
           <Badge 

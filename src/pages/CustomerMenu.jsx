@@ -320,7 +320,19 @@ export default function CustomerMenu() {
     navigate(`/customer-auth?restaurant=${vendorId}&table=${tableNumber}`);
   };
 
-  const categories = ["all", "appetizers", "mains", "desserts", "beverages", "wine", "cocktails", "coffee"];
+  // Generate categories dynamically from menu items
+  const categories = React.useMemo(() => {
+    if (!menuItems || menuItems.length === 0) {
+      return ["all"];
+    }
+    
+    // Extract unique categories from menu items
+    const uniqueCategories = [...new Set(menuItems.map(item => item.category).filter(Boolean))];
+    
+    // Sort categories alphabetically and add "all" at the beginning
+    const sortedCategories = uniqueCategories.sort();
+    return ["all", ...sortedCategories];
+  }, [menuItems]);
 
   if (isLoading) {
     return (
@@ -504,7 +516,7 @@ export default function CustomerMenu() {
                     </p>
                   </div>
                   <Badge variant="secondary" className="flex-shrink-0 bg-brand-primary/10 text-brand-primary font-bold px-2 py-1">
-                    ${item.price}
+                    LKR {item.price}
                   </Badge>
                 </div>
               </CardHeader>
@@ -570,7 +582,7 @@ export default function CustomerMenu() {
               </div>
               <span className="font-medium text-sm sm:text-base">View Cart</span>
             </div>
-            <span className="font-bold text-sm sm:text-base">${getCartTotal().toFixed(2)}</span>
+            <span className="font-bold text-sm sm:text-base">LKR {getCartTotal().toFixed(2)}</span>
           </Button>
         </div>
       )}
@@ -612,7 +624,7 @@ export default function CustomerMenu() {
                         <h3 className="font-semibold text-slate-900 text-base sm:text-lg truncate">{item.name}</h3>
                         <p className="text-slate-600 text-sm mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="text-base sm:text-lg font-bold text-black">${item.price}</span>
+                          <span className="text-base sm:text-lg font-bold text-black">LKR {item.price}</span>
                           <span className="text-xs sm:text-sm text-slate-500">each</span>
                         </div>
                       </div>
@@ -647,7 +659,7 @@ export default function CustomerMenu() {
                       
                       <div className="text-right">
                         <div className="font-bold text-slate-900 text-base sm:text-lg">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          LKR {(item.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -662,7 +674,7 @@ export default function CustomerMenu() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-slate-700 text-sm sm:text-base">
                     <span>Subtotal ({cart.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                    <span className="font-semibold">${getCartTotal().toFixed(2)}</span>
+                    <span className="font-semibold">LKR {getCartTotal().toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center text-slate-700 text-sm sm:text-base">
                     <span>Estimated time</span>
@@ -673,7 +685,7 @@ export default function CustomerMenu() {
                 <div className="border-t border-slate-300 pt-3">
                   <div className="flex justify-between items-center text-lg sm:text-xl font-bold text-slate-900 mb-2">
                     <span>Subtotal</span>
-                    <span className="text-black">${getCartTotal().toFixed(2)}</span>
+                    <span className="text-black">LKR {getCartTotal().toFixed(2)}</span>
                   </div>
                   <div className="text-xs text-slate-500 text-center mb-3 sm:mb-4">
                     Tip and final total calculated at checkout

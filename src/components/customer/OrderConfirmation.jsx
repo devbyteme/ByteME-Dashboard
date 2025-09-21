@@ -71,7 +71,7 @@ export default function OrderConfirmation({ cart, tableNumber, total, onClose, o
               Your order has been sent to the kitchen. We'll bring it to Table {tableNumber} shortly.
             </p>
             <p className="text-lg font-semibold text-blue-900">
-              Order Total: ${total.toFixed(2)}
+              Order Total: LKR {total.toFixed(2)}
             </p>
           </CardContent>
         </Card>
@@ -103,13 +103,13 @@ export default function OrderConfirmation({ cart, tableNumber, total, onClose, o
                 {cart.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span>{item.quantity}x {item.name}</span>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                    <span>LKR {(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
                 <div className="border-t pt-2 font-semibold">
                   <div className="flex justify-between">
                     <span>Total:</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>LKR {total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

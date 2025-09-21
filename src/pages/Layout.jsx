@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/sidebar";
 import { User } from "@/api";
 import ByteMeLogo from '../components/ByteMeLogo';
+import VendorProfile from '../components/vendor/VendorProfile';
 
 const navigationItems = [
   {
@@ -108,6 +109,12 @@ export default function Layout({ children, currentPageName }) {
       // Navigate to login page
       navigate('/vendor-login');
     }
+  };
+
+  // Handle profile updates
+  const handleProfileUpdate = (updatedUser) => {
+    // Update the user state with the new data
+    setUser(updatedUser);
   };
 
   const isAuthFlow = ["Welcome", "VendorLogin", "VendorRegistration"].includes(currentPageName);
@@ -227,25 +234,31 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-slate-200 p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center">
-                <UserIcon className="w-5 h-5 text-white" />
+            <div className="space-y-3">
+              {/* User Info */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center">
+                  <UserIcon className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-slate-900 text-sm truncate">
+                    {user?.name || user?.restaurantName || 'Vendor'}
+                  </p>
+                  <p className="text-xs text-slate-500 truncate">{user?.email || 'vendor@example.com'}</p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleLogout} 
+                  className="text-slate-500 hover:text-slate-800"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-900 text-sm truncate">
-                  {user?.name || user?.restaurantName || 'Vendor'}
-                </p>
-                <p className="text-xs text-slate-500 truncate">{user?.email || 'vendor@example.com'}</p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleLogout} 
-                className="text-slate-500 hover:text-slate-800"
-                title="Logout"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
+              
+              {/* Profile Settings */}
+              <VendorProfile user={user} onProfileUpdate={handleProfileUpdate} />
             </div>
           </SidebarFooter>
         </Sidebar>

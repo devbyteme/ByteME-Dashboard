@@ -144,21 +144,21 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                       <p className="text-sm text-slate-600">Qty: {item.quantity}</p>
                     </div>
                     <p className="font-semibold text-slate-900">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      LKR {(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}
                 <div className="border-t pt-3 space-y-2">
                   <div className="flex justify-between items-center">
                     <p className="text-slate-700">Subtotal</p>
-                    <p className="font-semibold text-slate-900">${total.toFixed(2)}</p>
+                    <p className="font-semibold text-slate-900">LKR {total.toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-slate-700">
                       Tip {formData.custom_tip ? '(Custom)' : formData.tip_percentage > 0 ? `(${formData.tip_percentage}%)` : ''}
                     </p>
                     <p className={`font-semibold ${calculateTip() > 0 ? 'text-green-600' : 'text-slate-900'}`}>
-                      ${calculateTip().toFixed(2)}
+                      LKR {calculateTip().toFixed(2)}
                     </p>
                   </div>
                   {calculateTip() > 0 && (
@@ -168,11 +168,11 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   )}
                   <div className="border-t pt-2 flex justify-between items-center">
                     <p className="font-bold text-lg text-slate-900">Total</p>
-                    <p className="font-bold text-lg text-brand-primary">${getFinalTotal().toFixed(2)}</p>
+                    <p className="font-bold text-lg text-brand-primary">LKR {getFinalTotal().toFixed(2)}</p>
                   </div>
                   {calculateTip() > 0 && (
                     <div className="text-xs text-slate-600 text-center">
-                      Includes ${calculateTip().toFixed(2)} tip
+                      Includes LKR {calculateTip().toFixed(2)} tip
                     </div>
                   )}
                 </div>
@@ -252,7 +252,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                 <h3 className="font-semibold text-slate-900">Add Tip</h3>
                 {calculateTip() > 0 && (
                   <span className="text-sm text-green-600 font-medium">
-                    +${calculateTip().toFixed(2)}
+                    +LKR {calculateTip().toFixed(2)}
                   </span>
                 )}
               </div>
@@ -271,7 +271,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                       }`}
                     >
                       <span className="font-semibold">{percentage}%</span>
-                      <span className="text-xs opacity-80">${tipAmount.toFixed(2)}</span>
+                      <span className="text-xs opacity-80">LKR {tipAmount.toFixed(2)}</span>
                     </Button>
                   );
                 })}
@@ -392,7 +392,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
               ) : (
                 <div className="flex items-center justify-between w-full">
                   <span>Place Order</span>
-                  <span className="font-bold">${getFinalTotal().toFixed(2)}</span>
+                  <span className="font-bold">LKR {getFinalTotal().toFixed(2)}</span>
                 </div>
               )}
             </Button>

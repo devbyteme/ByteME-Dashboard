@@ -233,8 +233,8 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
-            title="Today's Revenue"
-            value={`$${todayRevenue.toFixed(2)}`}
+            title="Today's Revenue(LKR)"
+            value={`${todayRevenue.toFixed(2)}`}
             icon={DollarSign}
             bgColor="from-emerald-500 to-teal-600"
             subtitle={`${todayOrders.length} orders today`}
@@ -292,7 +292,7 @@ export default function Dashboard() {
                   {todayOrders.length > 0 && (
                     <div className="flex justify-between">
                       <span className="text-slate-600">Avg Order Value:</span>
-                      <span className="font-medium">${averageOrderValue.toFixed(2)}</span>
+                      <span className="font-medium">LKR {averageOrderValue.toFixed(2)}</span>
                     </div>
                   )}
                 </div>

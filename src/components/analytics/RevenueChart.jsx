@@ -20,7 +20,7 @@ export default function RevenueChart({ dailyRevenue }) {
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip 
-                formatter={(value) => [`$${value.toFixed(2)}`, 'Revenue']}
+                formatter={(value) => [`LKR ${value.toFixed(2)}`, 'Revenue']}
                 labelFormatter={(label) => `Date: ${label}`}
               />
               <Bar dataKey="revenue" fill="#1e40af" />

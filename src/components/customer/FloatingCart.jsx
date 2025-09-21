@@ -33,7 +33,7 @@ export default function FloatingCart({ cart, onUpdateQuantity, onRemoveItem, onC
             </div>
             <div>
               <p className="font-semibold">Your Order</p>
-              <p className="text-sm text-blue-100">${total.toFixed(2)}</p>
+              <p className="text-sm text-blue-100">LKR {total.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export default function FloatingCart({ cart, onUpdateQuantity, onRemoveItem, onC
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <h4 className="font-medium text-slate-900 text-sm">{item.name}</h4>
-                          <p className="text-xs text-slate-600">${item.price.toFixed(2)} each</p>
+                          <p className="text-xs text-slate-600">LKR {item.price.toFixed(2)} each</p>
                         </div>
                         <Button
                           variant="ghost"
@@ -91,7 +91,7 @@ export default function FloatingCart({ cart, onUpdateQuantity, onRemoveItem, onC
                         </div>
                         
                         <p className="font-bold text-slate-900 text-sm">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          LKR {(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -102,7 +102,7 @@ export default function FloatingCart({ cart, onUpdateQuantity, onRemoveItem, onC
                   <div className="flex justify-between items-center mb-3">
                     <span className="font-semibold text-slate-900">Total:</span>
                     <span className="text-xl font-bold text-blue-900">
-                      ${total.toFixed(2)}
+                      LKR {total.toFixed(2)}
                     </span>
                   </div>
                   

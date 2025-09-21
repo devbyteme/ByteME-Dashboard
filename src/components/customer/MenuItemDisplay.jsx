@@ -46,7 +46,7 @@ export default function MenuItemDisplay({ item, onAddToCart, cartQuantity }) {
               {item.name}
             </CardTitle>
             <p className="text-2xl font-bold text-blue-900 mt-1">
-              ${item.price.toFixed(2)}
+              LKR {item.price.toFixed(2)}
             </p>
           </div>
           {cartQuantity > 0 && (

@@ -74,7 +74,7 @@ export default function RecentOrders({ orders, isLoading }) {
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </Badge>
                   <p className="text-sm font-semibold text-slate-900 mt-1">
-                    ${order.total_amount.toFixed(2)}
+                    LKR {order.total_amount.toFixed(2)}
                   </p>
                 </div>
               </div>

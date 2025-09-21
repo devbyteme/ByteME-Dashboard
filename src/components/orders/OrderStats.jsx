@@ -71,7 +71,7 @@ export default function OrderStats({ orders }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-600">Today's Revenue</p>
-              <p className="text-2xl font-bold text-blue-600">${todayRevenue.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-blue-600">LKR {todayRevenue.toFixed(2)}</p>
             </div>
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
               <DollarSign className="w-5 h-5 text-white" />
