@@ -232,6 +232,16 @@ class AuthService {
       throw error;
     }
   }
+
+  // Get vendor profile by ID (for customers to fetch vendor billing settings)
+  async getVendorProfile(vendorId) {
+    try {
+      const response = await api.get(`/vendors/${vendorId}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new AuthService(); 

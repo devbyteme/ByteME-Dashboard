@@ -1,31 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { X, CheckCircle, CreditCard, Banknote } from "lucide-react";
-import { orderService } from "@/api";
+import { orderService, authService } from "@/api";
 
 export default function CustomerCheckout({ cart, tableNumber, total, user, vendorId, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     customer_phone: "",
+    customer_email: "",
     payment_method: "cash",
     special_requests: "",
-    dietary_requirements: [],
     tip_percentage: 15,
     custom_tip: ""
   });
-
-  const dietaryOptions = [
-    'vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'nut-free', 
-    'halal', 'kosher', 'low-sodium', 'spicy-mild', 'spicy-hot'
-  ];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [vendorBillingSettings, setVendorBillingSettings] = useState({
+    taxRate: 0,
+    serviceChargeRate: 0
+  });
+
+  // Fetch vendor billing settings
+  useEffect(() => {
+    const fetchVendorBillingSettings = async () => {
+      if (vendorId) {
+        try {
+          const response = await authService.getVendorProfile(vendorId);
+          if (response.success && response.data.billingSettings) {
+            setVendorBillingSettings({
+              taxRate: response.data.billingSettings.taxRate || 0,
+              serviceChargeRate: response.data.billingSettings.serviceChargeRate || 0
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching vendor billing settings:', error);
+        }
+      }
+    };
+
+    fetchVendorBillingSettings();
+  }, [vendorId]);
+
+  const calculateTax = () => {
+    return (total * vendorBillingSettings.taxRate) / 100;
+  };
+
+  const calculateServiceCharge = () => {
+    return (total * vendorBillingSettings.serviceChargeRate) / 100;
+  };
 
   const calculateTip = () => {
     if (formData.custom_tip) {
@@ -35,7 +62,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
   };
 
   const getFinalTotal = () => {
-    return total + calculateTip();
+    return total + calculateTax() + calculateServiceCharge() + calculateTip();
   };
 
   const handleSubmit = async (e) => {
@@ -60,13 +87,19 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
         paymentMethod: formData.payment_method,
         tipAmount: tipAmount,
         tipPercentage: tipPercentage,
-        dietaryRequirements: formData.dietary_requirements,
+        taxAmount: calculateTax(),
+        taxRate: vendorBillingSettings.taxRate,
+        serviceChargeAmount: calculateServiceCharge(),
+        serviceChargeRate: vendorBillingSettings.serviceChargeRate,
+        subtotal: total,
+        total: getFinalTotal(),
         specialRequests: formData.special_requests,
         customerPhone: formData.customer_phone,
+        customerEmail: formData.customer_email,
         notes: [
           formData.special_requests && `Special: ${formData.special_requests}`,
-          formData.dietary_requirements.length > 0 && `Dietary: ${formData.dietary_requirements.join(', ')}`,
-          formData.customer_phone && `Phone: ${formData.customer_phone}`
+          formData.customer_phone && `Phone: ${formData.customer_phone}`,
+          formData.customer_email && `Email: ${formData.customer_email}`
         ].filter(Boolean).join(' | ')
       };
       
@@ -153,6 +186,21 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                     <p className="text-slate-700">Subtotal</p>
                     <p className="font-semibold text-slate-900">LKR {total.toFixed(2)}</p>
                   </div>
+                  
+                  {calculateTax() > 0 && (
+                    <div className="flex justify-between items-center">
+                      <p className="text-slate-700">Tax ({vendorBillingSettings.taxRate}%)</p>
+                      <p className="font-semibold text-slate-900">LKR {calculateTax().toFixed(2)}</p>
+                    </div>
+                  )}
+                  
+                  {calculateServiceCharge() > 0 && (
+                    <div className="flex justify-between items-center">
+                      <p className="text-slate-700">Service Charge ({vendorBillingSettings.serviceChargeRate}%)</p>
+                      <p className="font-semibold text-slate-900">LKR {calculateServiceCharge().toFixed(2)}</p>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between items-center">
                     <p className="text-slate-700">
                       Tip {formData.custom_tip ? '(Custom)' : formData.tip_percentage > 0 ? `(${formData.tip_percentage}%)` : ''}
@@ -170,9 +218,13 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                     <p className="font-bold text-lg text-slate-900">Total</p>
                     <p className="font-bold text-lg text-brand-primary">LKR {getFinalTotal().toFixed(2)}</p>
                   </div>
-                  {calculateTip() > 0 && (
+                  {(calculateTax() > 0 || calculateServiceCharge() > 0 || calculateTip() > 0) && (
                     <div className="text-xs text-slate-600 text-center">
-                      Includes LKR {calculateTip().toFixed(2)} tip
+                      {[
+                        calculateTax() > 0 && `Tax: LKR ${calculateTax().toFixed(2)}`,
+                        calculateServiceCharge() > 0 && `Service: LKR ${calculateServiceCharge().toFixed(2)}`,
+                        calculateTip() > 0 && `Tip: LKR ${calculateTip().toFixed(2)}`
+                      ].filter(Boolean).join(' | ')}
                     </div>
                   )}
                 </div>
@@ -186,10 +238,25 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   <span className="text-slate-600">Name</span>
                   <span className="font-medium text-slate-900">{user?.firstName || "Guest"}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-600">Email</span>
-                  <span className="font-medium text-slate-900">{user?.email || "Not provided"}</span>
-                </div>
+                {user.firstName ? (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-600">Email</span>
+                    <span className="font-medium text-slate-900">{user.email}</span>
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="customer_email" className="text-sm mb-1 block">Email Address</Label>
+                    <Input
+                    required
+                      id="customer_email"
+                      type="email"
+                      value={formData.customer_email}
+                      onChange={(e) => setFormData({...formData, customer_email: e.target.value})}
+                      placeholder="Enter your email for order updates"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">We'll send you order updates and receipts</p>
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="customer_phone" className="text-sm mb-1 block">Phone Number (Optional)</Label>
                   <Input
@@ -202,38 +269,6 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="font-semibold text-slate-900">Dietary Requirements</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {dietaryOptions.map((option) => (
-                  <div key={option} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={option}
-                      checked={formData.dietary_requirements.includes(option)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData(prev => ({
-                            ...prev,
-                            dietary_requirements: [...prev.dietary_requirements, option]
-                          }));
-                        } else {
-                          setFormData(prev => ({
-                            ...prev,
-                            dietary_requirements: prev.dietary_requirements.filter(req => req !== option)
-                          }));
-                        }
-                      }}
-                    />
-                    <Label 
-                      htmlFor={option} 
-                      className="text-sm font-normal capitalize cursor-pointer"
-                    >
-                      {option.replace('-', ' ')}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             <div>
               <Label htmlFor="special_requests" className="font-medium">Special Requests</Label>
@@ -256,8 +291,23 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[10, 15, 18, 20].map(percentage => {
+               <div className="grid grid-cols-2 gap-3">
+                 {/* No Tip Option */}
+                 <Button
+                   type="button"
+                   variant={formData.tip_percentage === 0 && !formData.custom_tip ? "default" : "outline"}
+                   onClick={() => setFormData({...formData, tip_percentage: 0, custom_tip: ""})}
+                   className={`h-auto py-3 flex flex-col gap-1 ${formData.tip_percentage === 0 && !formData.custom_tip
+                     ? 'bg-brand-primary hover:bg-brand-primary text-white border-brand-primary' 
+                     : 'bg-white text-slate-900 border-slate-300 hover:bg-orange-50 hover:border-brand-primary'
+                   }`}
+                 >
+                   <span className="font-semibold">No Tip</span>
+                   <span className="text-xs opacity-80">LKR 0.00</span>
+                 </Button>
+
+                 {/* Percentage Options */}
+                 {[10, 15, 20].map(percentage => {
                   const tipAmount = (total * percentage) / 100;
                   return (
                     <Button
@@ -277,7 +327,7 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                 })}
               </div>
               <div>
-                <Label htmlFor="custom_tip" className="font-medium">Custom Tip Amount ($)</Label>
+                <Label htmlFor="custom_tip" className="font-medium">Custom Tip Amount (LKR)</Label>
                 <Input
                   id="custom_tip"
                   type="number"
@@ -288,17 +338,6 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
                   placeholder="Enter custom amount"
                   className="mt-2"
                 />
-              </div>
-              <div className="text-center">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFormData({...formData, tip_percentage: 0, custom_tip: ""})}
-                  className="text-slate-500 hover:text-slate-700 text-sm"
-                >
-                  No tip
-                </Button>
               </div>
             </div>
 
@@ -367,17 +406,6 @@ export default function CustomerCheckout({ cart, tableNumber, total, user, vendo
               </div>
             </div>
             
-            <div>
-              <Label htmlFor="special_requests" className="font-medium">Special Requests (Optional)</Label>
-              <Textarea
-                id="special_requests"
-                value={formData.special_requests}
-                onChange={(e) => setFormData({...formData, special_requests: e.target.value})}
-                placeholder="Any special instructions for your order..."
-                rows={3}
-                className="mt-2"
-              />
-            </div>
             
             <Button 
               type="submit" 

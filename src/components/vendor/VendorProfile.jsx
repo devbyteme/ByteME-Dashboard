@@ -22,7 +22,8 @@ import {
   Save, 
   X,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Calculator
 } from 'lucide-react';
 import { authService } from '@/api';
 
@@ -51,6 +52,12 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
     zipCode: ''
   });
 
+  // Billing Settings Form
+  const [billingForm, setBillingForm] = useState({
+    taxRate: 0,
+    serviceChargeRate: 0
+  });
+
   // Initialize forms with user data
   useEffect(() => {
     if (user) {
@@ -68,6 +75,11 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
         city: user.location?.city || '',
         state: user.location?.state || '',
         zipCode: user.location?.zipCode || ''
+      });
+
+      setBillingForm({
+        taxRate: user.billingSettings?.taxRate || 0,
+        serviceChargeRate: user.billingSettings?.serviceChargeRate || 0
       });
     }
   }, [user]);
@@ -95,6 +107,13 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
         [field]: value
       }));
     }
+  };
+
+  const handleBillingChange = (field, value) => {
+    setBillingForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
 
@@ -180,6 +199,40 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
     }
   };
 
+  const handleBillingSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const billingData = {
+        billingSettings: {
+          taxRate: parseFloat(billingForm.taxRate) || 0,
+          serviceChargeRate: parseFloat(billingForm.serviceChargeRate) || 0
+        }
+      };
+
+      const response = await authService.updateVendorProfile(billingData);
+      if (response.success) {
+        setSuccess('Billing settings updated successfully!');
+        if (onProfileUpdate) {
+          onProfileUpdate(response.data);
+        }
+        setTimeout(() => {
+          setSuccess('');
+        }, 3000);
+      } else {
+        throw new Error(response.message || 'Failed to update billing settings');
+      }
+    } catch (error) {
+      console.error('Error updating billing settings:', error);
+      setError(error.message || 'Failed to update billing settings');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -198,7 +251,7 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="personal" className="flex items-center gap-2">
               <User className="w-4 h-4" />
               Personal Info
@@ -206,6 +259,10 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
             <TabsTrigger value="restaurant" className="flex items-center gap-2">
               <Building2 className="w-4 h-4" />
               Restaurant Info
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="flex items-center gap-2">
+              <Calculator className="w-4 h-4" />
+              Billing Settings
             </TabsTrigger>
           </TabsList>
 
@@ -413,6 +470,107 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
                     <Button type="submit" disabled={isLoading}>
                       <Save className="w-4 h-4 mr-2" />
                       {isLoading ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Billing Settings Tab */}
+          <TabsContent value="billing" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="w-5 h-5" />
+                  Billing Settings
+                </CardTitle>
+                <p className="text-sm text-slate-600">
+                  Configure tax and service charge rates that will be applied to customer orders
+                </p>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleBillingSubmit} className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-slate-900">Rate Configuration</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="taxRate">Tax Rate (%)</Label>
+                        <Input
+                          id="taxRate"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={billingForm.taxRate}
+                          onChange={(e) => handleBillingChange('taxRate', e.target.value)}
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-slate-500">
+                          Percentage of tax to be added to the subtotal (e.g., 8.5 for 8.5%)
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="serviceChargeRate">Service Charge Rate (%)</Label>
+                        <Input
+                          id="serviceChargeRate"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={billingForm.serviceChargeRate}
+                          onChange={(e) => handleBillingChange('serviceChargeRate', e.target.value)}
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-slate-500">
+                          Percentage of service charge to be added to the subtotal (e.g., 10 for 10%)
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Preview Section */}
+                    <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+                      <h4 className="font-medium text-slate-900">Bill Preview (Example with LKR 1000 subtotal)</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Subtotal</span>
+                          <span className="font-medium">LKR 1,000.00</span>
+                        </div>
+                        {billingForm.taxRate > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Tax ({billingForm.taxRate}%)</span>
+                            <span className="font-medium">LKR {(1000 * billingForm.taxRate / 100).toFixed(2)}</span>
+                          </div>
+                        )}
+                        {billingForm.serviceChargeRate > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Service Charge ({billingForm.serviceChargeRate}%)</span>
+                            <span className="font-medium">LKR {(1000 * billingForm.serviceChargeRate / 100).toFixed(2)}</span>
+                          </div>
+                        )}
+                        <div className="border-t pt-2 flex justify-between font-semibold">
+                          <span>Total</span>
+                          <span>LKR {(1000 + (1000 * billingForm.taxRate / 100) + (1000 * billingForm.serviceChargeRate / 100)).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-4 border-t">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsOpen(false)}
+                      disabled={isLoading}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isLoading}>
+                      <Save className="w-4 h-4 mr-2" />
+                      {isLoading ? 'Saving...' : 'Save Settings'}
                     </Button>
                   </div>
                 </form>
