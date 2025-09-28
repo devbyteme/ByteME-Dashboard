@@ -19,6 +19,7 @@ import QRScanner from "./QRScanner";
 import CustomerMenu from "./CustomerMenu";
 import CustomerAuthPage from "./CustomerAuthPage";
 import CustomerOrder from "./CustomerOrder";
+import CartCheckoutScreen from "./CartCheckoutScreen";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 export default function PagesContent() {
@@ -38,6 +39,7 @@ export default function PagesContent() {
       <Route path="/qr-scanner" element={<Layout currentPageName="QRScanner"><QRScanner /></Layout>} />
       <Route path="/customer-menu" element={<CustomerMenu />} />
       <Route path="/customer-auth" element={<CustomerAuthPage />} />
+      <Route path="/cart-checkout" element={<CartCheckoutScreen />} />
       
       {/* Protected Dashboard Routes */}
       <Route path="/dashboard" element={

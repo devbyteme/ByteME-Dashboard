@@ -18,7 +18,6 @@ import {
   X
 } from "lucide-react";
 import { MenuItem, Order, customerAuthService } from "@/api";
-import CustomerCheckout from "@/components/customer/CustomerCheckout";
 import ByteMeLogo from "../components/ByteMeLogo";
 
 export default function CustomerMenu() {
@@ -38,7 +37,6 @@ export default function CustomerMenu() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showCart, setShowCart] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [error, setError] = useState("");
@@ -206,25 +204,14 @@ export default function CustomerMenu() {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const [showCheckout, setShowCheckout] = useState(false);
-
-  const handleCheckout = () => {
+  const goToCartCheckout = () => {
     if (cart.length === 0) return;
     
-    // Show checkout modal instead of navigating
-    setShowCheckout(true);
-    setShowCart(false);
+    // Encode cart data for URL
+    const cartData = encodeURIComponent(JSON.stringify(cart));
+    navigate(`/cart-checkout?restaurant=${vendorId}&table=${tableNumber}&cart=${cartData}`);
   };
 
-  const handleCheckoutSuccess = (orderData) => {
-    // Clear cart and close modals
-    setCart([]);
-    setShowCheckout(false);
-    setShowCart(false);
-    
-    // Show order confirmation or redirect
-    setCurrentOrder(orderData);
-  };
 
   const handleGoogleAuthCallback = async (token, userData) => {
     try {
@@ -425,9 +412,10 @@ export default function CustomerMenu() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowCart(!showCart)}
+                onClick={goToCartCheckout}
                 className="relative h-10 w-10 sm:h-9 sm:w-auto sm:px-3 p-0 sm:p-2 touch-manipulation touch-target mobile-button"
                 title="View Cart"
+                disabled={cart.length === 0}
               >
                 <ShoppingCart className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Cart</span>
@@ -570,10 +558,10 @@ export default function CustomerMenu() {
       </main>
 
       {/* Floating Cart Button (Uber Eats Style) */}
-      {cart.length > 0 && !showCart && (
+      {cart.length > 0 && (
         <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-40 px-4 w-full max-w-sm">
           <Button
-            onClick={() => setShowCart(true)}
+            onClick={goToCartCheckout}
             className="bg-brand-primary hover:bg-brand-primary/90 text-brand-white shadow-xl px-4 sm:px-6 py-3 rounded-full h-12 sm:h-14 flex items-center gap-2 sm:gap-3 w-full justify-between transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation touch-target mobile-button"
           >
             <div className="flex items-center gap-2">
@@ -587,137 +575,6 @@ export default function CustomerMenu() {
         </div>
       )}
 
-            {/* Enhanced Cart Modal */}
-      {showCart && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center sm:justify-center">
-          <div className="bg-white w-full sm:max-w-md h-[90vh] sm:h-[85vh] sm:rounded-2xl rounded-t-2xl flex flex-col shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom duration-300">
-            {/* Cart Header */}
-            <div className="border-b border-slate-200 p-4 sm:p-5 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 sm:rounded-t-2xl">
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Your Order</h2>
-                <p className="text-xs sm:text-sm text-slate-600">Table {tableNumber} • {cart.reduce((sum, item) => sum + item.quantity, 0)} items</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowCart(false)}
-                className="h-10 w-10 sm:h-10 sm:w-10 hover:bg-white/50 rounded-full touch-manipulation touch-target mobile-button"
-                title="Close Cart"
-              >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
-              </Button>
-            </div>
-
-            {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
-              {cart.length === 0 ? (
-                <div className="text-center py-8 sm:py-12">
-                  <ShoppingCart className="w-12 h-12 sm:w-16 sm:h-16 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-500 text-base sm:text-lg">Your cart is empty</p>
-                  <p className="text-slate-400 text-sm">Add some delicious items to get started!</p>
-                </div>
-              ) : (
-                cart.map((item) => (
-                  <div key={item._id} className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1 min-w-0 pr-2">
-                        <h3 className="font-semibold text-slate-900 text-base sm:text-lg truncate">{item.name}</h3>
-                        <p className="text-slate-600 text-sm mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-base sm:text-lg font-bold text-black">LKR {item.price}</span>
-                          <span className="text-xs sm:text-sm text-slate-500">each</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-full p-1 shadow-sm">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => removeFromCart(item._id)}
-                          className="h-8 w-8 sm:h-8 sm:w-8 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors p-0 touch-manipulation touch-target mobile-button"
-                          title="Remove one"
-                        >
-                          <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </Button>
-                        
-                        <span className="w-8 sm:w-8 text-center font-bold text-slate-900 text-base sm:text-lg">
-                          {item.quantity}
-                        </span>
-                        
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => addToCart(item)}
-                          className="h-8 w-8 sm:h-8 sm:w-8 rounded-full hover:bg-green-100 hover:text-green-600 transition-colors p-0 touch-manipulation touch-target mobile-button"
-                          title="Add one"
-                        >
-                          <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="text-right">
-                        <div className="font-bold text-slate-900 text-base sm:text-lg">
-                          LKR {(item.price * item.quantity).toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Cart Summary & Checkout */}
-            {cart.length > 0 && (
-              <div className="border-t border-slate-200 bg-slate-50 p-3 sm:p-4 space-y-3 sm:space-y-4 sm:rounded-b-2xl">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-slate-700 text-sm sm:text-base">
-                    <span>Subtotal ({cart.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                    <span className="font-semibold">LKR {getCartTotal().toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-700 text-sm sm:text-base">
-                    <span>Estimated time</span>
-                    <span className="font-semibold">20-30 min</span>
-                  </div>
-                </div>
-                
-                <div className="border-t border-slate-300 pt-3">
-                  <div className="flex justify-between items-center text-lg sm:text-xl font-bold text-slate-900 mb-2">
-                    <span>Subtotal</span>
-                    <span className="text-black">LKR {getCartTotal().toFixed(2)}</span>
-                  </div>
-                  <div className="text-xs text-slate-500 text-center mb-3 sm:mb-4">
-                    Tip and final total calculated at checkout
-                  </div>
-                  
-                  <Button
-                    onClick={handleCheckout}
-                    className="w-full h-12 sm:h-12 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-semibold text-base sm:text-lg rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95 touch-manipulation touch-target mobile-button"
-                    disabled={cart.length === 0}
-                  >
-                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                    Continue to Checkout
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-      </div>
-      )}
-
-      {/* Enhanced Checkout Modal */}
-      {showCheckout && (
-        <CustomerCheckout
-          cart={cart}
-          tableNumber={tableNumber}
-          total={getCartTotal()}
-          user={user}
-          vendorId={vendorId}
-          onClose={() => setShowCheckout(false)}
-          onSuccess={handleCheckoutSuccess}
-        />
-      )}
     </div>
   );
 }
