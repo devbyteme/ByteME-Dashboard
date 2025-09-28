@@ -33,6 +33,7 @@ import {
 import { User } from "@/api";
 import ByteMeLogo from '../components/ByteMeLogo';
 import VendorProfile from '../components/vendor/VendorProfile';
+import AccessManagement from '../components/vendor/AccessManagement';
 
 const navigationItems = [
   {
@@ -259,6 +260,9 @@ export default function Layout({ children, currentPageName }) {
               
               {/* Profile Settings */}
               <VendorProfile user={user} onProfileUpdate={handleProfileUpdate} />
+              
+              {/* Access Management */}
+              <AccessManagement user={user} />
             </div>
           </SidebarFooter>
         </Sidebar>

@@ -19,7 +19,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { customerAuthService } from "@/api";
+import { customerAuthService, vendorService } from "@/api";
 
 export default function CustomerAuthPage() {
   const navigate = useNavigate();
@@ -33,6 +33,8 @@ export default function CustomerAuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [vendorInfo, setVendorInfo] = useState(null);
+  const [vendorLoading, setVendorLoading] = useState(false);
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -63,6 +65,27 @@ export default function CustomerAuthPage() {
     "Kosher",
     "None"
   ];
+
+  // Fetch vendor information when component mounts
+  useEffect(() => {
+    const fetchVendorInfo = async () => {
+      if (vendorId) {
+        setVendorLoading(true);
+        try {
+          const response = await vendorService.getById(vendorId);
+          if (response.success) {
+            setVendorInfo(response.data);
+          }
+        } catch (error) {
+          console.error('Error fetching vendor info:', error);
+        } finally {
+          setVendorLoading(false);
+        }
+      }
+    };
+
+    fetchVendorInfo();
+  }, [vendorId]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -200,17 +223,27 @@ export default function CustomerAuthPage() {
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-3 mb-4">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-6">
             <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
-    
           </div>
           
           {vendorId && tableNumber && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 mb-4">
-              <p className="text-sm text-brand-dark/70">
-                Welcome to <Badge variant="secondary">Table {tableNumber}</Badge>
-              </p>
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-brand-dark mb-2">
+                {vendorLoading ? (
+                  "Welcome"
+                ) : vendorInfo && vendorInfo.name ? (
+                  `Welcome to ${vendorInfo.name}`
+                ) : (
+                  "Welcome to Our Restaurant"
+                )}
+              </h1>
+              <div className="flex items-center justify-center gap-2">
+                <Badge variant="outline" className="text-brand-primary border-brand-primary">
+                  Table {tableNumber}
+                </Badge>
+              </div>
             </div>
           )}
         </div>
@@ -237,9 +270,6 @@ export default function CustomerAuthPage() {
         {/* Main Card */}
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-brand-dark">
-              Welcome to Our Restaurant
-            </CardTitle>
             <CardDescription className="text-brand-dark/70">
               Sign in to personalize your experience or continue as a guest
             </CardDescription>

@@ -242,6 +242,61 @@ class AuthService {
       throw error;
     }
   }
+
+  // Vendor Access Management
+  async grantVendorAccess(accessData) {
+    try {
+      const response = await api.post('/vendor-access/grant', accessData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getVendorAccessList(vendorId) {
+    try {
+      const response = await api.get(`/vendor-access/vendor/${vendorId}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserVendorAccess(userEmail) {
+    try {
+      const response = await api.get(`/vendor-access/user/${userEmail}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateVendorAccess(accessId, accessData) {
+    try {
+      const response = await api.put(`/vendor-access/${accessId}`, accessData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async revokeVendorAccess(accessId) {
+    try {
+      const response = await api.delete(`/vendor-access/${accessId}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async acceptVendorAccess(accessId, userEmail) {
+    try {
+      const response = await api.post(`/vendor-access/${accessId}/accept`, { userEmail });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new AuthService(); 

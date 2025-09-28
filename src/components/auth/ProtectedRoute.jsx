@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User } from '@/api';
+import { User, authService } from '@/api';
 
-export default function ProtectedRoute({ children, requireVendor = true }) {
+export default function ProtectedRoute({ children, requireVendor = false, requireUser = false }) {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,24 +14,45 @@ export default function ProtectedRoute({ children, requireVendor = true }) {
 
   const checkAuth = async () => {
     try {
-      const isAuth = User.isAuthenticated();
-      
-      if (!isAuth) {
-        navigate('/vendor-login');
-        return;
+      // Check for vendor authentication first
+      const isVendorAuth = authService.isAuthenticated();
+      let currentUser = null;
+
+      if (isVendorAuth) {
+        currentUser = authService.getCurrentUser();
+        if (currentUser) {
+          currentUser.userType = 'vendor';
+        }
+      } else {
+        // Check for user authentication
+        const isUserAuth = User.isAuthenticated();
+        if (isUserAuth) {
+          currentUser = await User.me();
+          if (currentUser) {
+            currentUser.userType = 'user';
+          }
+        }
       }
 
-      // Get current user data
-      const currentUser = await User.me();
-      
       if (!currentUser) {
-        navigate('/vendor-login');
+        if (requireVendor) {
+          navigate('/vendor-login');
+        } else if (requireUser) {
+          navigate('/user-login');
+        } else {
+          navigate('/welcome');
+        }
         return;
       }
 
-      // If requireVendor is true, check if user is a vendor
+      // Check user type requirements
       if (requireVendor && currentUser.userType !== 'vendor') {
         navigate('/vendor-login');
+        return;
+      }
+
+      if (requireUser && currentUser.userType !== 'user') {
+        navigate('/user-login');
         return;
       }
 
@@ -39,7 +60,13 @@ export default function ProtectedRoute({ children, requireVendor = true }) {
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Authentication check failed:', error);
-      navigate('/vendor-login');
+      if (requireVendor) {
+        navigate('/vendor-login');
+      } else if (requireUser) {
+        navigate('/user-login');
+      } else {
+        navigate('/welcome');
+      }
     } finally {
       setIsLoading(false);
     }

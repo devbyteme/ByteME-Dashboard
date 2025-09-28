@@ -44,19 +44,29 @@ export default function Dashboard() {
       setIsLoading(true);
       setError("");
 
-      // Check if vendor is authenticated
-      const isAuth = authService.isAuthenticated();
-      if (!isAuth) {
-        setError("Please login as a vendor to view dashboard");
-        setIsLoading(false);
-        return;
-      }
+      // Check for selected vendor (from multi-vendor admin)
+      const selectedVendor = localStorage.getItem('selectedVendor');
+      let currentVendor = null;
 
-      const currentVendor = await authService.getCurrentUser();
-      if (!currentVendor || currentVendor.userType !== 'vendor') {
-        setError("Access denied. Vendor account required.");
-        setIsLoading(false);
-        return;
+      if (selectedVendor) {
+        // User is accessing as multi-vendor admin
+        currentVendor = JSON.parse(selectedVendor);
+        currentVendor.userType = 'vendor'; // Set as vendor for compatibility
+      } else {
+        // Check if vendor is authenticated directly
+        const isAuth = authService.isAuthenticated();
+        if (!isAuth) {
+          setError("Please login as a vendor to view dashboard");
+          setIsLoading(false);
+          return;
+        }
+
+        currentVendor = await authService.getCurrentUser();
+        if (!currentVendor || currentVendor.userType !== 'vendor') {
+          setError("Access denied. Vendor account required.");
+          setIsLoading(false);
+          return;
+        }
       }
 
       setVendor(currentVendor);

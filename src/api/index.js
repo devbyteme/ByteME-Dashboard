@@ -6,6 +6,7 @@ import { menuService } from './menuService';
 import { categoryService } from './categoryService';
 import { orderService } from './orderService';
 import { tableService } from './tableService';
+import vendorService from './vendorService';
 
 // For backward compatibility, create User object
 export const User = {
@@ -97,5 +98,6 @@ export {
   menuService,
   categoryService,
   orderService,
-  tableService
+  tableService,
+  vendorService
 }; 

@@ -47,14 +47,14 @@ export default function Welcome() {
         </div>
 
         {/* Demo Section */}
-        <div className="mt-6 text-center">
+        {/* <div className="mt-6 text-center">
           <p className="text-brand-dark/50 text-sm">
             Want to see how it works?{" "}
             <Link to={createPageUrl("QRScanner")} className="text-brand-primary hover:text-brand-primary/80 font-medium">
               Try our demo
             </Link>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
