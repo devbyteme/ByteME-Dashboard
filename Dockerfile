@@ -1,3 +1,45 @@
+# # syntax=docker/dockerfile:1
+
+# # --- Build Stage ---
+# ARG NODE_VERSION=22.13.1
+# FROM node:${NODE_VERSION}-slim AS builder
+# WORKDIR /app
+
+# # Install dependencies including devDependencies
+# COPY --link package.json package-lock.json ./
+# RUN --mount=type=cache,target=/root/.npm \
+#     npm ci
+
+# # Copy source files
+# COPY --link . .
+
+# # Build Vite production assets
+# RUN npm run build
+
+# # --- Production Stage ---
+# FROM node:${NODE_VERSION}-slim AS final
+# WORKDIR /app
+
+# # Create non-root user
+# RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
+# # Copy built assets and all dependencies (including devDependencies)
+# COPY --from=builder /app/dist ./dist
+# COPY --from=builder /app/node_modules ./node_modules
+# COPY --from=builder /app/package.json ./
+
+# # Set environment variables
+# ENV NODE_ENV=production
+# ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# # Use non-root user
+# USER appuser
+
+# # Expose Vite preview port
+# EXPOSE 4173
+
+# # Start Vite preview
+# CMD ["npx", "vite", "preview", "--port", "4173", "--host"]
 # syntax=docker/dockerfile:1
 
 # --- Build Stage ---
@@ -5,38 +47,27 @@ ARG NODE_VERSION=22.13.1
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-# Install dependencies including devDependencies
-COPY --link package.json package-lock.json ./
+# Install dependencies
+COPY package*.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci
 
-# Copy source files
-COPY --link . .
-
-# Build Vite production assets
+# Copy source and build
+COPY . .
 RUN npm run build
 
 # --- Production Stage ---
-FROM node:${NODE_VERSION}-slim AS final
-WORKDIR /app
+FROM nginx:alpine AS production
 
-# Create non-root user
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy built assets and all dependencies (including devDependencies)
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
+# Replace default Nginx config with one that supports client-side routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Expose HTTP port
+EXPOSE 80
 
-# Use non-root user
-USER appuser
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
 
-# Expose Vite preview port
-EXPOSE 4173
-
-# Start Vite preview
-CMD ["npx", "vite", "preview", "--port", "4173", "--host"]
