@@ -40,6 +40,3 @@ EXPOSE 4173
 
 # Start Vite preview
 CMD ["npx", "vite", "preview", "--port", "4173", "--host"]
-syntax=docker/dockerfile:1
-
-syntax=docker/dockerfile:1
