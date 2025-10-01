@@ -8,12 +8,12 @@ export default defineConfig({
   preview: {
     allowedHosts: ['dev.usebyteme.com'],  
     host: '0.0.0.0',     
-    port: 4173          
+    port: 4172       
   },
   server: {
     allowedHosts: ['dev.usebyteme.com'],  
     host: '0.0.0.0',     
-    port: 4173   
+    port: 4172 
   },
   resolve: {
     alias: {
