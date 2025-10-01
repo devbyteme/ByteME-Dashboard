@@ -7,13 +7,13 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     allowedHosts: ['dev.usebyteme.com'],  
-    host: '0.0.0.0',     
-    port: 4172       
+    host: 'true',     
+    port: 4173
   },
   server: {
     allowedHosts: ['dev.usebyteme.com'],  
-    host: '0.0.0.0',     
-    port: 4172 
+    host: 'true',     
+    port: 4173
   },
   resolve: {
     alias: {
