@@ -6,12 +6,12 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   preview: {
-    allowedHosts: ["dev.usebyteme.com", "localhost", "127.0.0.1"],  
+    allowedHosts: true,  
     host: true,     
     port: 4173          
   },
   server: {
-    allowedHosts: ["dev.usebyteme.com", "127.0.0.1"],  
+    allowedHosts:true ,  
     host: true,     
     port: 4173   
   },
