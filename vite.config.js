@@ -12,7 +12,7 @@ export default defineConfig({
   },
   server: {
     allowedHosts: ['dev.usebyteme.com'],  
-    host: '0.0.0.0',     
+    host: true,     
     port: 4173   
   },
   resolve: {
