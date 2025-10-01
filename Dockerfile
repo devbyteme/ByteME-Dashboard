@@ -17,8 +17,10 @@ COPY . .
 # Build static files
 RUN npm run build
 
+# ... (keep the same build stage)
 
-FROM nginx:alpine AS production
+# --- Production Stage ---
+FROM nginx:alpine AS final
 
 # Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
@@ -26,7 +28,10 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy built app from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 4173
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 80 (nginx default)
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
