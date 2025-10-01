@@ -1,28 +1,32 @@
 # syntax=docker/dockerfile:1
 
+ARG NODE_VERSION=22.13.1
+
 # --- Build Stage ---
-FROM node:22.13.1-slim AS builder
+FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm ci
+# Install dependencies including devDependencies
+COPY --link package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
-# Copy source code
-COPY . .
+# Copy source files
+COPY --link . .
 
-# Build production assets
+# Build Vite production assets
 RUN npm run build
 
-# --- Nginx Stage ---
-FROM nginx:alpine
+# --- Production Stage ---
+FROM nginx:alpine AS final
+
+# Remove default nginx website
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built app from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
+# Expose port 80 (nginx default)
 EXPOSE 80
 
-# Run Nginx
 CMD ["nginx", "-g", "daemon off;"]
