@@ -41,6 +41,7 @@
 # # Start Vite preview
 # CMD ["npx", "vite", "preview", "--port", "4173", "--host"]
 # syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1
 
 # --- Build Stage ---
 ARG NODE_VERSION=22.13.1
@@ -52,8 +53,9 @@ COPY --link package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci
 
-# Copy source files
+# Copy source files and config
 COPY --link . .
+COPY --link vite.config.js ./
 
 # Build Vite production assets
 RUN npm run build
@@ -65,11 +67,11 @@ WORKDIR /app
 # Create non-root user
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# Copy built assets and all dependencies (including devDependencies)
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/vite.config.js ./  # Ensure config is copied
+# Copy only what's needed for production
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/package.json ./
+COPY --from=builder --chown=appuser:appgroup /app/vite.config.js ./
 
 # Set environment variables
 ENV NODE_ENV=production
