@@ -1,23 +1,21 @@
+# syntax=docker/dockerfile:1
+
 ARG NODE_VERSION=22.13.1
 
 # --- Build Stage ---
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-# Upgrade npm
-RUN npm install -g npm@11.6.0
+# Install dependencies including devDependencies
+COPY --link package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm install --frozen-lockfile
+# Copy source files
+COPY --link . .
 
-# Copy source code
-COPY . .
-
-# Build static files
+# Build Vite production assets
 RUN npm run build
-
-# ... (keep the same build stage)
 
 # --- Production Stage ---
 FROM nginx:alpine AS final
@@ -25,11 +23,15 @@ FROM nginx:alpine AS final
 # Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
 
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copy built app from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Set proper permissions
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
 
 # Expose port 80 (nginx default)
 EXPOSE 80
