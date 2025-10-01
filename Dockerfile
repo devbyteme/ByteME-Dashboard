@@ -42,6 +42,8 @@
 # CMD ["npx", "vite", "preview", "--port", "4173", "--host"]
 # syntax=docker/dockerfile:1
 
+# syntax=docker/dockerfile:1
+
 # --- Build Stage ---
 ARG NODE_VERSION=22.13.1
 FROM node:${NODE_VERSION}-slim AS builder
@@ -49,25 +51,30 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci
+RUN npm ci
 
-# Copy source and build
+# Copy source code
 COPY . .
+
+# Build production assets
 RUN npm run build
 
 # --- Production Stage ---
 FROM nginx:alpine AS production
 
-# Copy built assets from builder
+# Remove default Nginx content
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Replace default Nginx config with one that supports client-side routing
+# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose HTTP port
+# Expose port 80
 EXPOSE 80
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
+
 
