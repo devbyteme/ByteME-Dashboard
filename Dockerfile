@@ -1,47 +1,3 @@
-# # syntax=docker/dockerfile:1
-
-# # --- Build Stage ---
-# ARG NODE_VERSION=22.13.1
-# FROM node:${NODE_VERSION}-slim AS builder
-# WORKDIR /app
-
-# # Install dependencies including devDependencies
-# COPY --link package.json package-lock.json ./
-# RUN --mount=type=cache,target=/root/.npm \
-#     npm ci
-
-# # Copy source files
-# COPY --link . .
-
-# # Build Vite production assets
-# RUN npm run build
-
-# # --- Production Stage ---
-# FROM node:${NODE_VERSION}-slim AS final
-# WORKDIR /app
-
-# # Create non-root user
-# RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-
-# # Copy built assets and all dependencies (including devDependencies)
-# COPY --from=builder /app/dist ./dist
-# COPY --from=builder /app/node_modules ./node_modules
-# COPY --from=builder /app/package.json ./
-
-# # Set environment variables
-# ENV NODE_ENV=production
-# ENV NODE_OPTIONS="--max-old-space-size=4096"
-
-# # Use non-root user
-# USER appuser
-
-# # Expose Vite preview port
-# EXPOSE 4173
-
-# # Start Vite preview
-# CMD ["npx", "vite", "preview", "--port", "4173", "--host"]
-# syntax=docker/dockerfile:1
-
 # syntax=docker/dockerfile:1
 
 # --- Build Stage ---
@@ -49,32 +5,41 @@ ARG NODE_VERSION=22.13.1
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-# Install dependencies
-COPY package*.json ./
-RUN npm ci
+# Install dependencies including devDependencies
+COPY --link package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
-# Copy source code
-COPY . .
+# Copy source files
+COPY --link . .
 
-# Build production assets
+# Build Vite production assets
 RUN npm run build
 
 # --- Production Stage ---
-FROM nginx:alpine AS production
+FROM node:${NODE_VERSION}-slim AS final
+WORKDIR /app
 
-# Remove default Nginx content
-RUN rm -rf /usr/share/nginx/html/*
+# Create non-root user
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# Copy built files
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy built assets and all dependencies (including devDependencies)
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
 
-# Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Set environment variables
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Expose port 80
-EXPOSE 80
+# Use non-root user
+USER appuser
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Expose Vite preview port
+EXPOSE 4173
 
+# Start Vite preview
+CMD ["npx", "vite", "preview", "--port", "4173", "--host"]
+syntax=docker/dockerfile:1
 
+syntax=docker/dockerfile:1
