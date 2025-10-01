@@ -11,7 +11,9 @@ export default defineConfig({
     port: 4173          
   },
   server: {
-    allowedHosts: true
+    allowedHosts: ['dev.usebyteme.com'],  
+    host: '0.0.0.0',     
+    port: 4173   
   },
   resolve: {
     alias: {
