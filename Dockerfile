@@ -1,12 +1,17 @@
 # syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=22.13.1
-ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # --- Build Stage ---
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
+
+# Accept build-time args
+ARG VITE_API_BASE_URL
+ARG NEXTAUTH_URL
+# Pass them as env so Vite can access at build time
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
 
 # Install dependencies including devDependencies
 COPY --link package.json package-lock.json ./
@@ -16,7 +21,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copy source files
 COPY --link . .
 
-# Build Vite production assets
+# Build Vite production assets (VITE_* will be injected here)
 RUN npm run build
 
 # --- Production Stage ---
