@@ -113,7 +113,7 @@ export default function VendorRegistration() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <Link to={createPageUrl("Welcome")} className="flex items-center gap-3 text-brand-dark">
-            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-24 h-12" />
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-28 h-16" />
           </Link>
         </div>
         

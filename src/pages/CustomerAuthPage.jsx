@@ -270,9 +270,7 @@ export default function CustomerAuthPage() {
         {/* Main Card */}
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="text-center">
-            <CardDescription className="text-brand-dark/70">
-              Sign in to personalize your experience or continue as a guest
-            </CardDescription>
+
           </CardHeader>
           
           <CardContent className="space-y-4">
