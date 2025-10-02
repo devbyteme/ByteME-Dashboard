@@ -33,8 +33,10 @@ jobs:
         run: |
           docker build \
             --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
+            --build-arg NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }} \
             -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} \
             -t ${{ env.IMAGE }}:latest .
+
           docker push ${{ env.IMAGE }}:${{ env.TIMESTAMP }}
           docker push ${{ env.IMAGE }}:latest
 
