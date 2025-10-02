@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=22.13.1
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # --- Build Stage ---
 FROM node:${NODE_VERSION}-slim AS builder
