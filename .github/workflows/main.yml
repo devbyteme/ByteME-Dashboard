@@ -31,7 +31,11 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker build -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} -t ${{ env.IMAGE }}:latest .
+          docker build \
+            --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
+            -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} \
+            -t ${{ env.IMAGE }}:latest .
+
           docker push ${{ env.IMAGE }}:${{ env.TIMESTAMP }}
           docker push ${{ env.IMAGE }}:latest
 
