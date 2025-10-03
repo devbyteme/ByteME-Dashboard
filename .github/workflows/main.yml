@@ -33,11 +33,9 @@ jobs:
         run: |
           docker build \
             --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
-            -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} \
-            -t ${{ env.IMAGE }}:latest .
+            -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} .
 
           docker push ${{ env.IMAGE }}:${{ env.TIMESTAMP }}
-          docker push ${{ env.IMAGE }}:latest
 
       - name: Set image tag output for deploy
         id: image
