@@ -58,7 +58,7 @@ jobs:
             -t ${{ env.IMAGE_NAME }}:latest .
           docker push ${{ env.IMAGE_NAME }}:$VERSION
           docker push ${{ env.IMAGE_NAME }}:latest
-          echo "Pushed version: $VERSION"
+          echo "✅ Pushed version: $VERSION"
 
       - name: Create Git Tag
         env:
@@ -87,10 +87,12 @@ jobs:
       - name: Run deployment script on EC2
         env:
           VERSION: ${{ needs.build-and-push.outputs.version }}
+          GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
         run: |
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} << 'EOF'
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} << EOF
             cd /var/www/byteme/dashboard
-            export IMAGE_TAG=${{ needs.build-and-push.outputs.version }}
-            export GHCR_TOKEN=${{ secrets.GHCR_PAT }}
+            export IMAGE_TAG="${{ needs.build-and-push.outputs.version }}"
+            export GHCR_TOKEN="${{ secrets.GHCR_PAT }}"
+            echo "Deploying version: \$IMAGE_TAG"
             ./deploy.sh
           EOF
