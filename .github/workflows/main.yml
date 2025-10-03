@@ -49,18 +49,18 @@ jobs:
     env:
       IMAGE: ghcr.io/devbyteme/byteme-dashboard-prod
       GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
-
+  
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
+  
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
+          echo "${{ secrets.EC2_SSH_KEY}}" | tr -d '\r' > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -H ${{ secrets.PUBLIC_DNS_PROD }} >> ~/.ssh/known_hosts
-
+  
       - name: Run deployment script on EC2
         run: |
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS_prod }} "cd /var/www/byteme/dashboard && ./deploy.sh"
+          ssh -i ~/.ssh/ec2-key.pem ubuntu@${{ secrets.PUBLIC_DNS_PROD }} "cd /var/www/byteme/dashboard && ./deploy.sh"
