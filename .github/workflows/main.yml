@@ -62,6 +62,5 @@ jobs:
           ssh-keyscan -H ${{ secrets.PUBLIC_DNS_PROD }} >> ~/.ssh/known_hosts
 
       - name: Run deployment script on EC2
-        run: |
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS_PROD }} \
-          "cd /var/www/byteme/dashboard && ./deploy.sh"
+          run: |
+            ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS_prod }} "cd /var/www/byteme/dashboard && ./deploy.sh"
