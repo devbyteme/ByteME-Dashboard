@@ -275,7 +275,7 @@ export default function CustomerAuthPage() {
           
           <CardContent className="space-y-4">
             {/* Google OAuth Button */}
-            <button
+            {/* <button
               type="button"
               onClick={handleGoogleAuth}
               disabled={isLoading}
@@ -297,7 +297,7 @@ export default function CustomerAuthPage() {
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-brand-white px-2 text-brand-dark/60">Or continue with email</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
