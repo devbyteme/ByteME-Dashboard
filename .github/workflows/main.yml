@@ -63,5 +63,5 @@ jobs:
 
       - name: Run deployment script on EC2
         run: |
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} \
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS_prod }} \
           "cd /var/www/byteme/dashboard && IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }} ./deploy.sh"
