@@ -12,7 +12,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write  # Changed from 'read' to allow pushing tags
       packages: write
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -61,12 +61,14 @@ jobs:
           echo "Pushed version: $VERSION"
 
       - name: Create Git Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=${{ steps.version.outputs.version }}
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "v$VERSION" -m "Release version $VERSION"
-          git push origin "v$VERSION"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git "v$VERSION"
 
   deploy:
     runs-on: ubuntu-latest
