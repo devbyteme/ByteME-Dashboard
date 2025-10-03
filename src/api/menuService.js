@@ -32,14 +32,25 @@ export const menuService = {
   // Create new menu item
   async create(menuItem) {
     console.log('MenuService.create called with:', menuItem);
-    const response = await api.post('/menu/menu-items', menuItem);
+    
+    // Use FormData for file uploads
+    const response = await api.post('/menu/menu-items', menuItem, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
     console.log('MenuService.create response:', response);
     return response;
   },
 
   // Update menu item
   async update(id, menuItem) {
-    return api.put(`/menu/menu-items/${id}`, menuItem);
+    return api.put(`/menu/menu-items/${id}`, menuItem, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
 
   // Delete menu item

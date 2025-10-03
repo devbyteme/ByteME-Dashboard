@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Save, Loader2, AlertCircle } from "lucide-react";
+import { X, Save, Loader2, AlertCircle, Upload, X as XIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Category } from "@/api";
 
@@ -23,6 +22,8 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
     preparationTime: item?.preparationTime || ""
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(item?.image || "");
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState("");
@@ -41,7 +42,6 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
       if (response.success) {
         setCategories(response.data);
         
-        // If this is a new item and no category is set, use the first category
         if (!item && !formData.category && response.data.length > 0) {
           setFormData(prev => ({ ...prev, category: response.data[0].name }));
         }
@@ -56,22 +56,60 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (1MB limit)
+      if (file.size > 1 * 1024 * 1024) {
+        alert('Image size must be less than 1MB');
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+
+      setImageFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+    setFormData(prev => ({ ...prev, image: "" }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Sanitize the data to match backend schema
-    const dataToSave = {
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      category: formData.category,
-      image: formData.image || null,
-      available: formData.available,
-      dietary_info: formData.dietary_info,
-      preparationTime: formData.preparationTime ? parseInt(formData.preparationTime) : null
-    };
+    // Create FormData object for file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('price', parseFloat(formData.price));
+    formDataToSend.append('category', formData.category);
+    formDataToSend.append('available', formData.available);
+    formDataToSend.append('preparationTime', formData.preparationTime ? parseInt(formData.preparationTime) : '');
+    formDataToSend.append('dietary_info', JSON.stringify(formData.dietary_info));
     
-    onSave(dataToSave);
+    // Append image file if selected
+    if (imageFile) {
+      formDataToSend.append('image', imageFile);
+    } else if (!formData.image && item?.image) {
+      // If image was removed, send empty string
+      formDataToSend.append('image', '');
+    }
+    
+    onSave(formDataToSend);
   };
 
   const handleDietaryChange = (option, checked) => {
@@ -189,16 +227,51 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="image">Image URL (Optional)</Label>
-            <Input
-              id="image"
-              type="url"
-              value={formData.image}
-              onChange={(e) => setFormData({...formData, image: e.target.value})}
-              placeholder="https://example.com/image.jpg"
-              disabled={isSaving}
-            />
+          {/* Image Upload Section */}
+          <div className="space-y-4">
+            <Label htmlFor="image">Item Image</Label>
+            <div>
+
+            {imagePreview ? (
+              <div className="relative inline-block">
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="w-32 h-32 object-cover rounded-lg border"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute -top-2 -right-2 w-6 h-6"
+                  onClick={removeImage}
+                >
+                  <XIcon className="w-3 h-3" />
+                </Button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                <Label 
+                  htmlFor="image-upload"
+                  className="cursor-pointer text-blue-600 hover:text-blue-700"
+                >
+                  Click to upload image
+                </Label>
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  disabled={isSaving}
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  PNG, JPG, JPEG up to 1MB
+                </p>
+              </div>
+            )}
+            </div>
           </div>
 
           <div className="space-y-3">
