@@ -57,7 +57,7 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY}}" | tr -d '\r' > ~/.ssh/ec2-key.pem
+          echo "${{ secrets.EC2_SSH_KEY_PROD}}" | tr -d '\r' > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -H ${{ secrets.PUBLIC_DNS_PROD }} >> ~/.ssh/known_hosts
   
