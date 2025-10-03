@@ -1,46 +1,25 @@
-name: Build, Push & Deploy
+name: build and push
+
 on:
   push:
     branches:
       - main
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/devbyteme/byteme-dashboard
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Changed from 'read' to allow pushing tags
-      packages: write
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      - name: Get version
-        id: version
-        run: |
-          # Get the latest tag, if none exists use 0.0.0
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          # Remove 'v' prefix if exists
-          VERSION=${LATEST_TAG#v}
-          # Split version into array
-          IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
-          MAJOR=${VERSION_PARTS[0]}
-          MINOR=${VERSION_PARTS[1]}
-          PATCH=${VERSION_PARTS[2]}
-          
-          # Auto-increment patch version
-          PATCH=$((PATCH + 1))
-          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Building version: $NEW_VERSION"
+    env:
+      REGISTRY: ghcr.io
+      IMAGE: ghcr.io/devbyteme/byteme-dashboard
+      
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
@@ -49,34 +28,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
+      - name: Write Secret to File
+        run: echo "${{ secrets.ENVSECRET }}" > .env
+      
       - name: Build and push image
         run: |
-          VERSION=${{ steps.version.outputs.version }}
-          docker build \
-            --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
-            -t ${{ env.IMAGE_NAME }}:$VERSION \
-            -t ${{ env.IMAGE_NAME }}:latest .
-          docker push ${{ env.IMAGE_NAME }}:$VERSION
-          docker push ${{ env.IMAGE_NAME }}:latest
-          echo "✅ Pushed version: $VERSION"
-
-      - name: Create Git Tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$VERSION" -m "Release version $VERSION"
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git "v$VERSION"
+          docker build -t ${{ env.IMAGE }}:latest .
+          docker push ${{ env.IMAGE }}:latest
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
+  
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -86,13 +53,6 @@ jobs:
 
       - name: Run deployment script on EC2
         env:
-          VERSION: ${{ needs.build-and-push.outputs.version }}
           GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
         run: |
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} << EOF
-            cd /var/www/byteme/dashboard
-            export IMAGE_TAG="${{ needs.build-and-push.outputs.version }}"
-            export GHCR_TOKEN="${{ secrets.GHCR_PAT }}"
-            echo "Deploying version: \$IMAGE_TAG"
-            ./deploy.sh
-          EOF
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme/dashboard && ./deploy.sh"
