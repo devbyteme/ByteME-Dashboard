@@ -154,7 +154,7 @@ export default function VendorLogin() {
             </div>
             <CardTitle className="text-2xl font-bold text-brand-dark">Welcome back</CardTitle>
             <CardDescription className="text-brand-dark/70">
-              First time here?{' '}
+              First time?{' '}
               <Link to={createPageUrl("VendorRegistration")} className="text-brand-primary hover:text-brand-primary/80 font-medium">
                 Sign up here
               </Link>
