@@ -493,6 +493,22 @@ export default function CustomerMenu() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {filteredItems.map((item) => (
             <Card key={item._id} className="bg-white shadow-sm hover:shadow-md transition-all duration-200 border-0 rounded-xl overflow-hidden">
+              {item.image && (
+        <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-t-lg overflow-hidden">
+          <img 
+            src={item.image} 
+            alt={item.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="hidden w-full h-full items-center justify-center text-slate-400">
+            <span className="text-sm">No Image</span>
+          </div>
+        </div>
+      )}
               <CardHeader className="pb-3 p-4">
                 <div className="flex justify-between items-start gap-3">
                   <div className="flex-1 min-w-0">
