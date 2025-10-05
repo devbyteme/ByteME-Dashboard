@@ -72,7 +72,7 @@ const CustomerForgotPassword = () => {
       <div className="max-w-md w-full space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <ByteMeLogo variant="full" size="lg" />
+        <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
           <h2 className="mt-6 text-3xl font-bold text-brand-dark">
             Forgot Password
           </h2>
