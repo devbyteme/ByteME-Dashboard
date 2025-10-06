@@ -115,9 +115,9 @@ export default function CustomerMenu() {
         }
       }
 
-      // If no existing auth, redirect to auth page
+      // If no existing auth, redirect to login selection page
       if (!isAuthenticated && !isGuest) {
-        navigate(`/customer-auth?restaurant=${vendorId}&table=${tableNumber}`);
+        navigate(`/customer-login-selection?restaurant=${vendorId}&table=${tableNumber}`);
         return;
       }
 

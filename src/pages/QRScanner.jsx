@@ -26,14 +26,14 @@ export default function QRScanner() {
       setScannedData(JSON.stringify(mockQRData));
       setIsScanning(false);
       
-      // Navigate to the restaurant menu
-      navigate(`/customer-menu?restaurant=${mockQRData.restaurant}&table=${mockQRData.table}`);
+      // Navigate to the login selection page first
+      navigate(`/customer-login-selection?restaurant=${mockQRData.restaurant}&table=${mockQRData.table}`);
     }, 2000);
   };
 
   const handleManualEntry = () => {
-    // For demo purposes, navigate to a sample restaurant
-    navigate('/customer-menu?restaurant=demo-restaurant-123&table=1');
+    // For demo purposes, navigate to a sample restaurant's login selection
+    navigate('/customer-login-selection?restaurant=demo-restaurant-123&table=1');
   };
 
   return (

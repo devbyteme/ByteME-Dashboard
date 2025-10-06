@@ -18,6 +18,7 @@ import UserLogin from "./UserLogin";
 import QRScanner from "./QRScanner";
 import CustomerMenu from "./CustomerMenu";
 import CustomerAuthPage from "./CustomerAuthPage";
+import CustomerLoginSelection from "./CustomerLoginSelection";
 import CustomerOrder from "./CustomerOrder";
 import CartCheckoutScreen from "./CartCheckoutScreen";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -37,6 +38,7 @@ export default function PagesContent() {
       <Route path="/user-registration" element={<Layout currentPageName="UserRegistration"><UserRegistration /></Layout>} />
       <Route path="/user-login" element={<Layout currentPageName="UserLogin"><UserLogin /></Layout>} />
       <Route path="/qr-scanner" element={<Layout currentPageName="QRScanner"><QRScanner /></Layout>} />
+      <Route path="/customer-login-selection" element={<CustomerLoginSelection />} />
       <Route path="/customer-menu" element={<CustomerMenu />} />
       <Route path="/customer-auth" element={<CustomerAuthPage />} />
       <Route path="/cart-checkout" element={<CartCheckoutScreen />} />

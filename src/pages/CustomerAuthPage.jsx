@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { customerAuthService, vendorService } from "@/api";
+// Use the configured API base URL for backend-origin redirects
 
 export default function CustomerAuthPage() {
   const navigate = useNavigate();
@@ -166,7 +167,9 @@ export default function CustomerAuthPage() {
   };
 
   const handleGoogleAuth = () => {
-    const backendUrl = 'http://localhost:3000';
+    // Derive backend root (without trailing /api) from VITE_API_BASE_URL if present
+    const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+    const backendUrl = apiBase.endsWith('/api') ? apiBase.replace(/\/api$/, '') : apiBase || 'http://localhost:3000';
     // Create the customer menu URL with restaurant and table parameters
     const customerMenuUrl = `${window.location.origin}/customer-menu?restaurant=${vendorId}&table=${tableNumber}&auth=true`;
     console.log('🔐 CustomerAuthPage: Google OAuth redirect URL:', customerMenuUrl);
@@ -219,9 +222,26 @@ export default function CustomerAuthPage() {
     }));
   };
 
+  const handleBackToSelection = () => {
+    navigate(`/customer-login-selection?restaurant=${vendorId}&table=${tableNumber}`);
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
       <div className="w-full max-w-md">
+        {/* Back Button */}
+        {vendorId && tableNumber && (
+          <button
+            onClick={handleBackToSelection}
+            className="mb-4 flex items-center gap-2 text-brand-dark/70 hover:text-brand-dark transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-sm">Back</span>
+          </button>
+        )}
+        
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
@@ -357,23 +377,6 @@ export default function CustomerAuthPage() {
               </svg>
               Continue with Google
             </button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase mt-10 ">
-                <span className="bg-brand-white px-2 text-brand-dark/60">Or continue as Guest</span>
-              </div>
-            </div>
-             {/* Guest Mode Button */}
-             <Button 
-              onClick={handleGuestMode}
-              variant="outline"
-              className="w-full h-11 border-brand-primary text-brand-primary hover:bg-brand-primary/5 transition-colors duration-200"
-            >
-              Continue as Guest
-            </Button>
 
               </TabsContent>
 

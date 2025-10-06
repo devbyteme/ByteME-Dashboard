@@ -16,7 +16,7 @@ const CustomerForgotPassword = () => {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/customer/forgot-password', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/customer/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ const CustomerForgotPassword = () => {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/customer/forgot-password', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/customer/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
