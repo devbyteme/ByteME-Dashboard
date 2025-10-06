@@ -56,3 +56,31 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
         run: |
           ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme/dashboard && ./deploy.sh"
+
+
+  cleanup-latest:
+    runs-on: ubuntu-latest
+    needs: deploy
+    permissions:
+      packages: write
+    steps:
+      - name: Wait a minutes before deleting 'latest'
+        run: sleep 60
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+
+      - name: Delete 'latest' image tag from GHCR
+        run: |
+          
+          gh api /users/devbyteme/packages/container/bbyteme-dashboard/versions \
+            --jq '.[] | select(.metadata.container.tags | index("latest")) | .id' > version_id.txt
+
+          if [ -s version_id.txt ]; then
+            version_id=$(cat version_id.txt)
+            echo " Deleting version ID: $version_id"
+            gh api -X DELETE /users/devbyteme/packages/container/byteme-dashboard/versions/$version_id
+          else
+            echo "No 'latest' tag found to delete."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GHCR_PAT }}
