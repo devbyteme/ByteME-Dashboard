@@ -41,6 +41,9 @@ jobs:
     needs: build-and-push
       
     steps:
+
+      - name: Wait for GHCR to update
+        run: sleep 20
       - name: Checkout repository
         uses: actions/checkout@v3
   
