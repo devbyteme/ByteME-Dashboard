@@ -33,7 +33,7 @@ jobs:
       
       - name: Build and push image
         run: |
-          docker build -t ${{ env.IMAGE }}:latest .
+          docker build --build-arg VITE_API_BASE_URL="$VITE_API_BASE_URL" -t ${{ env.IMAGE }}:latest .
           docker push ${{ env.IMAGE }}:latest
 
   deploy:
