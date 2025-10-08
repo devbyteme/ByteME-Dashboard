@@ -122,6 +122,7 @@ export default function VendorLogin() {
   const handleGoogleSignIn = () => {
     // Redirect to backend Google OAuth endpoint
     const backendUrl = import.meta.env.VITE_API_BASE_URL;
+    console.log('🔐 VendorLogin: Redirecting to Google OAuth endpoint:', backendUrl);
     window.location.href = `${backendUrl}/auth/google`;
   };
 

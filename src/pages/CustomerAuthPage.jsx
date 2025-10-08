@@ -169,7 +169,9 @@ export default function CustomerAuthPage() {
   const handleGoogleAuth = () => {
     // Derive backend root (without trailing /api) from VITE_API_BASE_URL if present
     const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+    console.log('🔐 CustomerAuthPage: API base URL:', apiBase);
     const backendUrl = apiBase.endsWith('/api') ? apiBase.replace(/\/api$/, '') : apiBase || 'http://localhost:3000';
+    console.log('🔐 CustomerAuthPage: Backend URL:', backendUrl);
     // Create the customer menu URL with restaurant and table parameters
     const customerMenuUrl = `${window.location.origin}/customer-menu?restaurant=${vendorId}&table=${tableNumber}&auth=true`;
     console.log('🔐 CustomerAuthPage: Google OAuth redirect URL:', customerMenuUrl);

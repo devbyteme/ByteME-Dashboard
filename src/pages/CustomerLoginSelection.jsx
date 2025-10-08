@@ -100,6 +100,32 @@ export default function CustomerLoginSelection() {
 
         {/* Selection Cards */}
         <div className="space-y-4">
+
+           {/* Guest Mode Card */}
+           <Card className="border-2 hover:border-brand-accent transition-all duration-200 cursor-pointer hover:shadow-lg">
+            <CardContent className="p-6">
+              <button
+                onClick={handleGuestMode}
+                className="w-full text-left space-y-3"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-brand-accent/10 rounded-lg">
+                    <UserCircle className="w-6 h-6 text-brand-accent" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <h3 className="text-xl font-semibold text-brand-dark">
+                      Start Ordering
+                    </h3>
+                    <p className="text-sm text-brand-dark/70">
+                      Browse the menu and place orders without creating an account. Perfect for a quick visit
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                </div>
+              </button>
+            </CardContent>
+          </Card>
           {/* Email Login Card */}
           <Card className="border-2 hover:border-brand-primary transition-all duration-200 cursor-pointer hover:shadow-lg">
             <CardContent className="p-6">
@@ -126,31 +152,7 @@ export default function CustomerLoginSelection() {
             </CardContent>
           </Card>
 
-          {/* Guest Mode Card */}
-          <Card className="border-2 hover:border-brand-accent transition-all duration-200 cursor-pointer hover:shadow-lg">
-            <CardContent className="p-6">
-              <button
-                onClick={handleGuestMode}
-                className="w-full text-left space-y-3"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-brand-accent/10 rounded-lg">
-                    <UserCircle className="w-6 h-6 text-brand-accent" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <h3 className="text-xl font-semibold text-brand-dark">
-                      Start Ordering
-                    </h3>
-                    <p className="text-sm text-brand-dark/70">
-                      Browse the menu and place orders without creating an account. Perfect for a quick visit
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                </div>
-              </button>
-            </CardContent>
-          </Card>
+         
         </div>
       </div>
     </div>
