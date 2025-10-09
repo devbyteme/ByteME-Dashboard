@@ -1,24 +1,30 @@
-name: build and push
+name: Build, Push & Deploy
 
 on:
   push:
     branches:
       - main
+      - production
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    # 👇 Dynamically choose environment based on branch
+    environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
+
     env:
       REGISTRY: ghcr.io
-      IMAGE: ghcr.io/devbyteme/byteme-dashboard
-      
+      TIMESTAMP: ${{ github.run_number }}-${{ github.sha }}
+      # 👇 Dynamically set image name based on branch
+      IMAGE: ${{ github.ref_name == 'main' && 'ghcr.io/devbyteme/byteme-dashboard' || github.ref_name == 'production' && 'ghcr.io/devbyteme/byteme-dashboard-prod' }}
+
     permissions:
       contents: read
       packages: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Login to GitHub Container Registry
@@ -28,62 +34,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      - name: Write Secret to File
-        run: echo "${{ secrets.ENVSECRET }}" > .env
-      
       - name: Build and push image
         run: |
-          docker build --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} -t ${{ env.IMAGE }}:latest .
+          echo "🚀 Building for branch: ${{ github.ref_name }}"
+          echo "🧩 Image name: ${{ env.IMAGE }}"
+
+          docker build \
+            --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
+            -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} \
+            -t ${{ env.IMAGE }}:latest .
+
+          docker push ${{ env.IMAGE }}:${{ env.TIMESTAMP }}
           docker push ${{ env.IMAGE }}:latest
+
+      - name: Set image tag output for deploy
+        id: image
+        run: echo "image_tag=${{ env.TIMESTAMP }}" >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
-      
-    steps:
 
-      - name: Wait for GHCR to update
-        run: sleep 20
+    environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
+
+    env:
+      # 👇 Match the same dynamic image logic
+      IMAGE: ${{ github.ref_name == 'main' && 'ghcr.io/devbyteme/byteme-dashboard' || github.ref_name == 'production' && 'ghcr.io/devbyteme/byteme-dashboard-prod' }}
+
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-  
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -H ${{ secrets.PUBLIC_DNS }} >> ~/.ssh/known_hosts
 
       - name: Run deployment script on EC2
-        env:
-          GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
         run: |
+          echo "🔧 Deploying image: ${{ env.IMAGE }}"
           ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme/dashboard && ./deploy.sh"
-
-
-  cleanup-latest:
-    runs-on: ubuntu-latest
-    needs: deploy
-    permissions:
-      packages: write
-    steps:
-      - name: Wait a minutes before deleting 'latest'
-        run: sleep 60
-      - name: Install GitHub CLI
-        run: sudo apt-get install -y gh
-
-      - name: Delete 'latest' image tag from GHCR
-        run: |
-          
-          gh api /users/devbyteme/packages/container/bbyteme-dashboard/versions \
-            --jq '.[] | select(.metadata.container.tags | index("latest")) | .id' > version_id.txt
-
-          if [ -s version_id.txt ]; then
-            version_id=$(cat version_id.txt)
-            echo " Deleting version ID: $version_id"
-            gh api -X DELETE /users/devbyteme/packages/container/byteme-dashboard/versions/$version_id
-          else
-            echo "No 'latest' tag found to delete."
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GHCR_PAT }}
