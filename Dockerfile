@@ -8,10 +8,10 @@ WORKDIR /app
 
 # Accept build-time args
 ARG VITE_API_BASE_URL
-# ARG NEXTAUTH_URL
+ARG NEXTAUTH_URL
 # Pass them as env so Vite can access at build time
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-# ENV NEXTAUTH_URL=$NEXTAUTH_URL
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
 
 # Install dependencies including devDependencies
 COPY --link package.json package-lock.json ./
@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY --link . .
 
 # Build Vite production assets (VITE_* will be injected here)
-RUN npm run build
+RUN VITE_API_BASE_URL=$VITE_API_BASE_URL npm run build
 
 # --- Production Stage ---
 FROM nginx:alpine AS final

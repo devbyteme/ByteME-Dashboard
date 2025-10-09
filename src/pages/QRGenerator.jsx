@@ -11,9 +11,10 @@ import { useNavigate } from "react-router-dom";
 import TableCard from "../components/qr/TableCard";
 
 // Helper function to create menu URLs with vendor ID and table number
+// Updated to redirect to login selection page first
 const createCustomerMenuUrl = (vendorId, tableNumber) => {
   const origin = window.location.origin;
-  const pagePath = "/customer-menu";
+  const pagePath = "/customer-login-selection";
   return `${origin}${pagePath}?restaurant=${vendorId}&table=${tableNumber}`;
 };
 

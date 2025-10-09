@@ -44,7 +44,7 @@ export default function MenuManagement() {
     const testBackend = async () => {
       try {
         console.log("Testing backend connectivity...");
-        const response = await fetch('http://localhost:3000/api');
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}`);
         console.log("Backend test response:", response);
       } catch (error) {
         console.error("Backend connectivity test failed:", error);

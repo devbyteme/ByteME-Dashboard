@@ -121,7 +121,8 @@ export default function VendorLogin() {
 
   const handleGoogleSignIn = () => {
     // Redirect to backend Google OAuth endpoint
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+    const backendUrl = import.meta.env.VITE_API_BASE_URL;
+    console.log('🔐 VendorLogin: Redirecting to Google OAuth endpoint:', backendUrl);
     window.location.href = `${backendUrl}/auth/google`;
   };
 
@@ -154,7 +155,7 @@ export default function VendorLogin() {
             </div>
             <CardTitle className="text-2xl font-bold text-brand-dark">Welcome back</CardTitle>
             <CardDescription className="text-brand-dark/70">
-              First time here?{' '}
+              First time?{' '}
               <Link to={createPageUrl("VendorRegistration")} className="text-brand-primary hover:text-brand-primary/80 font-medium">
                 Sign up here
               </Link>
