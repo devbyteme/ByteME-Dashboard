@@ -4,16 +4,18 @@ on:
   push:
     branches:
       - main
-      - Production
+      - production
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    
+    environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
+
     env:
       REGISTRY: ghcr.io
-      # Different images for different branches
-      IMAGE: ${{ github.ref == 'refs/heads/Production' && 'ghcr.io/devbyteme/byteme-dashboard-prod' || 'ghcr.io/devbyteme/byteme-dashboard-dev' }}
+      IMAGE: ghcr.io/devbyteme/byteme-dashboard
       TIMESTAMP: ${{ github.run_number }}-${{ github.sha }}
 
     permissions:
@@ -33,7 +35,6 @@ jobs:
 
       - name: Build and push image
         run: |
-          # Use VITE_API_BASE_URL for both branches (shared secret)
           docker build \
             --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
             -t ${{ env.IMAGE }}:${{ env.TIMESTAMP }} \
@@ -49,34 +50,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+
     
-    env:
-      IMAGE: ${{ github.ref == 'refs/heads/Production' && 'ghcr.io/devbyteme/byteme-dashboard-prod' || 'ghcr.io/devbyteme/byteme-dashboard-dev' }}
-      GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
-  
+    environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-  
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          # Use different SSH keys and DNS based on branch
-          if [ "${{ github.ref }}" == "refs/heads/Production" ]; then
-            echo "${{ secrets.EC2_SSH_KEY_PROD }}" | tr -d '\r' > ~/.ssh/ec2-key.pem
-            chmod 600 ~/.ssh/ec2-key.pem
-            ssh-keyscan -H ${{ secrets.PUBLIC_DNS_PROD }} >> ~/.ssh/known_hosts
-          else
-            echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/ec2-key.pem
-            chmod 600 ~/.ssh/ec2-key.pem
-            ssh-keyscan -H ${{ secrets.PUBLIC_DNS }} >> ~/.ssh/known_hosts
-          fi
-  
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/ec2-key.pem
+          chmod 600 ~/.ssh/ec2-key.pem
+          ssh-keyscan -H ${{ secrets.PUBLIC_DNS }} >> ~/.ssh/known_hosts
+
       - name: Run deployment script on EC2
         run: |
-          # Deploy to different servers based on branch
-          if [ "${{ github.ref }}" == "refs/heads/Production" ]; then
-            ssh -i ~/.ssh/ec2-key.pem SERVER_USER@${{ secrets.PUBLIC_DNS_PROD }} "cd /var/www/byteme/dashboard && ./deploy.sh"
-          else
-            ssh -i ~/.ssh/ec2-key.pem SERVER_USER@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme/dashboard && ./deploy.sh"
-          fi
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.PUBLIC_DNS }} "cd /var/www/byteme/dashboard && ./deploy.sh"
