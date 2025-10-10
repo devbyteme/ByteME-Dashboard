@@ -10,7 +10,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    # ✅ This chooses the right GitHub Environment automatically
+    
     environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
 
     env:
@@ -36,6 +36,7 @@ jobs:
       - name: Create .env file for build
         run: |
           echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" > .env
+          cat .env
 
       - name: Build and push image
         run: |
