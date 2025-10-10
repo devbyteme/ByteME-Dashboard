@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY --link . .
 
 # Build Vite production assets (VITE_* will be injected here)
-RUN VITE_API_BASE_URL=$VITE_API_BASE_URL npm run build
+RUN echo "Building with VITE_API_BASE_URL=$VITE_API_BASE_URL" && npm run build
 
 # --- Production Stage ---
 FROM nginx:alpine AS final
