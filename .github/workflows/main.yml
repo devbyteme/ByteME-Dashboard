@@ -10,7 +10,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    # 👇 Dynamically choose environment based on branch
+  
     environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
 
     env:
