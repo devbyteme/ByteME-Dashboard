@@ -59,7 +59,7 @@ jobs:
     environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
 
     env:
-      # 👇 Match the same dynamic image logic
+      
       IMAGE: ${{ github.ref_name == 'main' && 'ghcr.io/devbyteme/byteme-dashboard' || github.ref_name == 'production' && 'ghcr.io/devbyteme/byteme-dashboard-prod' }}
 
     steps:
