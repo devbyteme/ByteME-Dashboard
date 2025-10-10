@@ -4,19 +4,18 @@ on:
   push:
     branches:
       - main
-      - Production
+      - production
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-  
+    # ✅ This chooses the right GitHub Environment automatically
     environment: ${{ github.ref_name == 'main' && 'development' || github.ref_name == 'production' && 'production' }}
 
     env:
       REGISTRY: ghcr.io
       TIMESTAMP: ${{ github.run_number }}-${{ github.sha }}
-      # 👇 Dynamically set image name based on branch
       IMAGE: ${{ github.ref_name == 'main' && 'ghcr.io/devbyteme/byteme-dashboard' || github.ref_name == 'production' && 'ghcr.io/devbyteme/byteme-dashboard-prod' }}
 
     permissions:
@@ -38,6 +37,7 @@ jobs:
         run: |
           echo "🚀 Building for branch: ${{ github.ref_name }}"
           echo "🧩 Image name: ${{ env.IMAGE }}"
+          echo "🌍 Using API base: ${{ secrets.VITE_API_BASE_URL }}"
 
           docker build \
             --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
@@ -46,10 +46,6 @@ jobs:
 
           docker push ${{ env.IMAGE }}:${{ env.TIMESTAMP }}
           docker push ${{ env.IMAGE }}:latest
-
-      - name: Set image tag output for deploy
-        id: image
-        run: echo "image_tag=${{ env.TIMESTAMP }}" >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: ubuntu-latest
