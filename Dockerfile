@@ -45,4 +45,4 @@ EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
 
-syntax=docker/dockerfile:1
+
