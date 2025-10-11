@@ -29,10 +29,16 @@ export default function CustomerMenu() {
   const tableNumber = searchParams.get('table');
   const isAuthenticated = searchParams.get('auth') === 'true';
   const isGuest = searchParams.get('guest') === 'true';
+  const cartDataFromUrl = searchParams.get('cart');
   
   const [menuItems, setMenuItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [cart, setCart] = useState([]);
+  
+  // Debug: Log cart changes
+  useEffect(() => {
+    console.log('Cart state changed:', cart.length, 'items', cart);
+  }, [cart]);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,11 +47,101 @@ export default function CustomerMenu() {
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [error, setError] = useState("");
   const [authError, setAuthError] = useState("");
+  const [isCartLoaded, setIsCartLoaded] = useState(false);
 
   // Check authentication and load data
   useEffect(() => {
-    checkExistingAuth();
-  }, []);
+    if (vendorId && tableNumber) {
+      checkExistingAuth();
+      loadCartFromStorage();
+    }
+  }, [vendorId, tableNumber]);
+
+  // Load cart from localStorage or URL
+  const loadCartFromStorage = () => {
+    console.log('loadCartFromStorage called', { vendorId, tableNumber, cartDataFromUrl });
+    try {
+      // First, check if cart data is provided in URL (from checkout navigation)
+      // if (cartDataFromUrl) {
+      //   console.log('Loading cart from URL parameter');
+      //   const parsedCart = JSON.parse(decodeURIComponent(cartDataFromUrl));
+      //   console.log('Cart from URL:', parsedCart);
+      //   setCart(parsedCart);
+      //   setIsCartLoaded(true);
+      //   return;
+      // }
+
+      // Fallback to localStorage
+      const savedCart = localStorage.getItem('customerCart');
+      console.log('Checking localStorage for cart:', savedCart);
+      
+      if (savedCart) {
+        const cartData = JSON.parse(savedCart);
+        console.log('Parsed cart data:', cartData);
+        console.log('Cart items:', cartData.items);
+        console.log('Vendor ID match:', cartData.vendorId, '===', vendorId);
+        console.log('Table number match:', cartData.tableNumber, '===', tableNumber);
+        
+        // Check if cart data is not too old (24 hours)
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        const isExpired = cartData.timestamp && (Date.now() - cartData.timestamp) > maxAge;
+        
+        if (isExpired) {
+          localStorage.removeItem('customerCart');
+          setIsCartLoaded(true);
+          console.log('Cart expired, cleared from localStorage');
+          return;
+        }
+        
+        // Only restore cart if it's for the same vendor and table
+        if (cartData.vendorId === vendorId ) {
+          const itemsToSet = cartData.items || [];
+          console.log('Restoring cart from localStorage:', itemsToSet.length, 'items', itemsToSet);
+          setCart(itemsToSet);
+          setIsCartLoaded(true);
+          console.log('Cart state should now be updated');
+        } else {
+          console.log('Cart data not for this vendor/table, skipping. Expected:', vendorId, tableNumber);
+          setIsCartLoaded(true);
+        }
+      } else {
+        console.log('No saved cart found in localStorage');
+        setIsCartLoaded(true);
+      }
+    } catch (error) {
+      console.error('Error loading cart from storage:', error);
+      setIsCartLoaded(true);
+    }
+  };
+
+  // Save cart to localStorage whenever cart changes (but only after initial load)
+  useEffect(() => {
+    // Don't save to localStorage until cart is loaded to avoid clearing it prematurely
+    if (!isCartLoaded) return;
+    
+    if (cart.length > 0 && vendorId && tableNumber) {
+      const cartData = {
+        vendorId,
+        tableNumber,
+        items: cart,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('customerCart', JSON.stringify(cartData));
+      console.log('Cart saved to localStorage:', cart.length, 'items');
+    } else if (cart.length === 0 && isCartLoaded) {
+      // Only clear cart from storage if it's empty AFTER initial load
+      // This prevents clearing the cart before it's been loaded
+      const savedCart = localStorage.getItem('customerCart');
+      if (savedCart) {
+        const cartData = JSON.parse(savedCart);
+        // Only clear if it's for this vendor/table
+        if (cartData.vendorId === vendorId && cartData.tableNumber === tableNumber) {
+          localStorage.removeItem('customerCart');
+          console.log('Cart cleared from localStorage');
+        }
+      }
+    }
+  }, [cart, vendorId, tableNumber, isCartLoaded]);
 
   // Load menu items when vendor ID is available
   useEffect(() => {
@@ -537,14 +633,7 @@ export default function CustomerMenu() {
                       <span className="text-xs sm:text-sm text-slate-600">{item.rating}</span>
                     </div>
                   )}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="capitalize text-xs px-2 py-1 bg-slate-50 text-slate-600 border-slate-200">
-                    {item.category}
-                  </Badge>
-                  
-                  <Button
+                    <Button
                     size="sm"
                     onClick={() => addToCart(item)}
                     className="h-9 sm:h-9 px-3 sm:px-4 bg-brand-primary hover:bg-brand-primary/90 text-brand-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 touch-manipulation touch-target mobile-button"
@@ -554,6 +643,7 @@ export default function CustomerMenu() {
                     <span className="hidden sm:inline">Add</span>
                   </Button>
                 </div>
+
               </CardContent>
             </Card>
           ))}

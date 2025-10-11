@@ -203,7 +203,7 @@ export default function VendorRegistration() {
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  placeholder="123 Main Street" 
+                  placeholder="Street Address" 
                   required 
                 />
               </div>
@@ -221,24 +221,24 @@ export default function VendorRegistration() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="state">State</Label>
+                  <Label htmlFor="state">Province</Label>
                   <Input 
                     id="state" 
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
-                    placeholder="State" 
+                    placeholder="Province" 
                     required 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="zipCode">ZIP Code</Label>
+                  <Label htmlFor="zipCode">Postal Code</Label>
                   <Input 
                     id="zipCode" 
                     name="zipCode"
                     value={formData.zipCode}
                     onChange={handleInputChange}
-                    placeholder="12345" 
+                    placeholder="Postal Code" 
                     required 
                   />
                 </div>

@@ -350,10 +350,19 @@ export default function QRGenerator() {
                   <Input
                     id="capacity"
                     type="number"
-                    min="1"
-                    max="20"
                     value={newTable.capacity}
-                    onChange={(e) => setNewTable({...newTable, capacity: parseInt(e.target.value) || 4})}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow empty string for editing, otherwise parse as integer
+                      if (value === '') {
+                        setNewTable({...newTable, capacity: ''});
+                      } else {
+                        const numValue = parseInt(value);
+                        if (!isNaN(numValue) && numValue > 0) {
+                          setNewTable({...newTable, capacity: numValue});
+                        }
+                      }
+                    }}
                     placeholder="4"
                     className="bg-white text-slate-900"
                     required

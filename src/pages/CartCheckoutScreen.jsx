@@ -51,6 +51,7 @@ export default function CartCheckoutScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isCartInitialized, setIsCartInitialized] = useState(false);
   const [vendorBillingSettings, setVendorBillingSettings] = useState({
     taxRate: 0,
     serviceChargeRate: 0
@@ -62,12 +63,41 @@ export default function CartCheckoutScreen() {
       try {
         const parsedCart = JSON.parse(decodeURIComponent(cartData));
         setCart(parsedCart);
+        setIsCartInitialized(true);
       } catch (error) {
         console.error('Error parsing cart data:', error);
         setError('Invalid cart data');
+        setIsCartInitialized(true);
+      }
+    } else {
+      // Fallback: try to load cart from localStorage
+      try {
+        const savedCart = localStorage.getItem('customerCart');
+        if (savedCart) {
+          const cartData = JSON.parse(savedCart);
+          
+          // Check if cart data is not too old (24 hours)
+          const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          const isExpired = cartData.timestamp && (Date.now() - cartData.timestamp) > maxAge;
+          
+          if (isExpired) {
+            localStorage.removeItem('customerCart');
+            setIsCartInitialized(true);
+            return;
+          }
+          
+          // Only restore cart if it's for the same vendor and table
+          if (cartData.vendorId === vendorId && cartData.tableNumber === parseInt(tableNumber)) {
+            setCart(cartData.items || []);
+          }
+        }
+        setIsCartInitialized(true);
+      } catch (error) {
+        console.error('Error loading cart from localStorage:', error);
+        setIsCartInitialized(true);
       }
     }
-  }, [cartData]);
+  }, [cartData, vendorId, tableNumber]);
 
   // Load user and vendor data
   useEffect(() => {
@@ -136,6 +166,27 @@ export default function CartCheckoutScreen() {
     return getCartTotal() + calculateTax() + calculateServiceCharge() + calculateTip();
   };
 
+  // Sync cart changes to localStorage whenever cart changes (but only after initialization)
+  useEffect(() => {
+    // Don't sync until cart is initialized to avoid overwriting on initial load
+    if (!isCartInitialized || !vendorId || !tableNumber) return;
+    
+    if (cart.length > 0) {
+      const cartData = {
+        vendorId,
+        tableNumber: parseInt(tableNumber),
+        items: cart,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('customerCart', JSON.stringify(cartData));
+      console.log('Cart updated in localStorage:', cart.length, 'items');
+    } else {
+      // Clear localStorage if cart is empty
+      localStorage.removeItem('customerCart');
+      console.log('Cart cleared from localStorage (empty cart)');
+    }
+  }, [cart, vendorId, tableNumber, isCartInitialized]);
+
   // Cart management functions
   const updateQuantity = (itemId, newQuantity) => {
     if (newQuantity <= 0) {
@@ -190,8 +241,9 @@ export default function CartCheckoutScreen() {
       
       if (response.success) {
         setOrderSubmitted(true);
-        // Clear cart from localStorage
+        // Clear cart from localStorage and current state
         localStorage.removeItem('customerCart');
+        setCart([]);
       } else {
         setError(response.message || 'Failed to place order');
       }
@@ -204,6 +256,8 @@ export default function CartCheckoutScreen() {
   };
 
   const goBack = () => {
+    // Cart is automatically synced to localStorage via useEffect
+    // So we can just navigate back
     navigate(`/customer-menu?restaurant=${vendorId}&table=${tableNumber}`);
   };
 
@@ -360,7 +414,6 @@ export default function CartCheckoutScreen() {
                         onChange={handleInputChange}
                         placeholder="Enter your phone number"
                         className="border-brand-primary/30 focus:border-brand-primary focus:ring-brand-primary/20"
-                        required
                       />
                     </div>
                     {isGuest && (
