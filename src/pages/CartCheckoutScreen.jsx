@@ -280,48 +280,57 @@ export default function CartCheckoutScreen() {
                 ) : (
                   <div className="space-y-4">
                     {cart.map((item) => (
-                      <div key={item._id} className="flex items-center gap-4 p-4 bg-brand-secondary/20 rounded-lg border border-brand-primary/10">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-brand-dark">{item.name}</h3>
-                          <p className="text-sm text-brand-dark/70">LKR {item.price} each</p>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
+                      <div key={item._id} className="p-4 bg-brand-secondary/20 rounded-lg border border-brand-primary/10">
+                        {/* Item Info Row */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0 pr-2">
+                            <h3 className="font-semibold text-brand-dark text-sm sm:text-base leading-tight break-words">
+                              {item.name}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-brand-dark/70 mt-1">
+                              LKR {item.price} each
+                            </p>
+                          </div>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                            className="w-8 h-8 border-brand-primary/30 hover:bg-brand-primary/10 text-brand-dark"
+                            onClick={() => removeFromCart(item._id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0 w-8 h-8"
                           >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="font-semibold px-2 min-w-[2rem] text-center text-brand-dark">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                            className="w-8 h-8 border-brand-primary/30 hover:bg-brand-primary/10 text-brand-dark"
-                          >
-                            <Plus className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                         
-                        <div className="text-right min-w-[4rem]">
-                          <p className="font-bold text-brand-dark">
-                            LKR {(item.price * item.quantity).toFixed(2)}
-                          </p>
+                        {/* Quantity and Total Row */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                              className="w-8 h-8 border-brand-primary/30 hover:bg-brand-primary/10 text-brand-dark"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                            <span className="font-semibold px-2 min-w-[2rem] text-center text-brand-dark text-sm">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                              className="w-8 h-8 border-brand-primary/30 hover:bg-brand-primary/10 text-brand-dark"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          
+                          <div className="text-right">
+                            <p className="font-bold text-brand-dark text-sm sm:text-base">
+                              LKR {(item.price * item.quantity).toFixed(2)}
+                            </p>
+                          </div>
                         </div>
-                        
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeFromCart(item._id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
                       </div>
                     ))}
                   </div>
