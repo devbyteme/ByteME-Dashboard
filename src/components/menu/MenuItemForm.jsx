@@ -24,9 +24,14 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(item?.image || "");
+  const [imageLink, setImageLink] = useState(item?.image && !item?.image.includes('amazonaws.com') ? item.image : "");
+  const [imageUploadType, setImageUploadType] = useState(
+    item?.image && !item?.image.includes('amazonaws.com') ? "link" : "file"
+  ); // "file" or "link"
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
   const dietaryOptions = ["vegetarian", "vegan", "gluten-free", "dairy-free", "nut-free", "spicy"];
 
   useEffect(() => {
@@ -85,11 +90,48 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
   const removeImage = () => {
     setImageFile(null);
     setImagePreview("");
+    setImageLink("");
     setFormData(prev => ({ ...prev, image: "" }));
+  };
+
+  const handleImageLinkChange = (e) => {
+    const link = e.target.value;
+    setImageLink(link);
+    
+    // Validate URL format
+    if (link && isValidImageUrl(link)) {
+      setImagePreview(link);
+      setFormData(prev => ({ ...prev, image: link }));
+    } else if (link) {
+      setImagePreview("");
+      setFormData(prev => ({ ...prev, image: "" }));
+    }
+  };
+
+  const isValidImageUrl = (url) => {
+    try {
+      const urlObj = new URL(url);
+      const validDomains = ['drive.google.com', 'docs.google.com', 'images.google.com', 'imgur.com', 'i.imgur.com'];
+      const isValidDomain = validDomains.some(domain => urlObj.hostname.includes(domain));
+      const hasImageExtension = /\.(jpg|jpeg|png|gif|webp)$/i.test(urlObj.pathname);
+      
+      return isValidDomain || hasImageExtension;
+    } catch {
+      return false;
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Clear previous validation errors
+    setValidationErrors({});
+    
+    // Validate category
+    if (!formData.category) {
+      setValidationErrors({ category: "Menu items should be under a category" });
+      return;
+    }
     
     // Create FormData object for file upload
     const formDataToSend = new FormData();
@@ -101,12 +143,21 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
     formDataToSend.append('preparationTime', formData.preparationTime ? parseInt(formData.preparationTime) : '');
     formDataToSend.append('dietary_info', JSON.stringify(formData.dietary_info));
     
-    // Append image file if selected
-    if (imageFile) {
+    // Handle image based on upload type
+    if (imageUploadType === "file" && imageFile) {
       formDataToSend.append('image', imageFile);
-    } else if (!formData.image && item?.image) {
-      // If image was removed, send empty string
+      console.log('Sending image file:', imageFile.name);
+    } else if (imageUploadType === "link" && imageLink) {
+      formDataToSend.append('image', imageLink);
+      console.log('Sending image link:', imageLink);
+    } else if (imageUploadType === "link" && !imageLink && item?.image) {
+      // If image was removed from link mode, send empty string
       formDataToSend.append('image', '');
+      console.log('Removing image (was link)');
+    } else if (imageUploadType === "file" && !imageFile && item?.image) {
+      // If image was removed from file mode, send empty string
+      formDataToSend.append('image', '');
+      console.log('Removing image (was file)');
     }
     
     onSave(formDataToSend);
@@ -177,19 +228,31 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Category *</Label>
               {categoriesError && (
                 <Alert variant="destructive" className="mb-2">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{categoriesError}</AlertDescription>
                 </Alert>
               )}
+              {validationErrors.category && (
+                <Alert variant="destructive" className="mb-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{validationErrors.category}</AlertDescription>
+                </Alert>
+              )}
               <Select 
                 value={formData.category} 
-                onValueChange={(value) => setFormData({...formData, category: value})}
+                onValueChange={(value) => {
+                  setFormData({...formData, category: value});
+                  // Clear validation error when category is selected
+                  if (validationErrors.category) {
+                    setValidationErrors(prev => ({ ...prev, category: null }));
+                  }
+                }}
                 disabled={isSaving || categoriesLoading}
               >
-                <SelectTrigger>
+                <SelectTrigger className={validationErrors.category ? "border-red-500" : ""}>
                   <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select category"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,7 +293,40 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
           {/* Image Upload Section */}
           <div className="space-y-4">
             <Label htmlFor="image">Item Image</Label>
-            <div>
+            
+            {/* Upload Type Selection */}
+            <div className="flex gap-4 mb-4">
+              <Button
+                type="button"
+                variant={imageUploadType === "file" ? "default" : "outline"}
+                onClick={() => {
+                  setImageUploadType("file");
+                  setImageLink("");
+                  if (imageUploadType === "link") {
+                    removeImage();
+                  }
+                }}
+                className="text-sm"
+                disabled={isSaving}
+              >
+                Upload File
+              </Button>
+              <Button
+                type="button"
+                variant={imageUploadType === "link" ? "default" : "outline"}
+                onClick={() => {
+                  setImageUploadType("link");
+                  setImageFile(null);
+                  if (imageUploadType === "file") {
+                    removeImage();
+                  }
+                }}
+                className="text-sm"
+                disabled={isSaving}
+              >
+                Use Link
+              </Button>
+            </div>
 
             {imagePreview ? (
               <div className="relative inline-block">
@@ -250,28 +346,44 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
                 </Button>
               </div>
             ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                <Label 
-                  htmlFor="image-upload"
-                  className="cursor-pointer text-blue-600 hover:text-blue-700"
-                >
-                  Click to upload image
-                </Label>
-                <Input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  disabled={isSaving}
-                />
-                <p className="text-sm text-gray-500 mt-1">
-                  PNG, JPG, JPEG up to 1MB
-                </p>
+              <div>
+                {imageUploadType === "file" ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                    <Label 
+                      htmlFor="image-upload"
+                      className="cursor-pointer text-blue-600 hover:text-blue-700"
+                    >
+                      Click to upload image
+                    </Label>
+                    <Input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      disabled={isSaving}
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      PNG, JPG, JPEG up to 1MB
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Input
+                      type="url"
+                      value={imageLink}
+                      onChange={handleImageLinkChange}
+                      placeholder="Paste image URL (Google Drive, Imgur, etc.)"
+                      disabled={isSaving}
+                    />
+                    <p className="text-sm text-gray-500">
+                      Supports Google Drive, Imgur, and direct image links
+                    </p>
+                  </div>
+                )}
               </div>
             )}
-            </div>
           </div>
 
           <div className="space-y-3">
