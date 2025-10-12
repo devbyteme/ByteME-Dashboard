@@ -434,22 +434,22 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="state">State</Label>
+                        <Label htmlFor="state">Province</Label>
                         <Input
                           id="state"
                           value={vendorForm.state}
                           onChange={(e) => handleVendorChange('state', e.target.value)}
-                          placeholder="State"
+                          placeholder="Province"
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="zipCode">ZIP Code</Label>
+                        <Label htmlFor="zipCode">Postal Code</Label>
                         <Input
                           id="zipCode"
                           value={vendorForm.zipCode}
                           onChange={(e) => handleVendorChange('zipCode', e.target.value)}
-                          placeholder="ZIP Code"
+                          placeholder="Postal Code"
                           required
                         />
                       </div>

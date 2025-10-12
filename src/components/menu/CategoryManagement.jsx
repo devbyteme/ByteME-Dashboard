@@ -16,14 +16,103 @@ import {
   GripVertical, 
   AlertCircle, 
   Palette,
-  Loader2
+  Loader2,
+  Check
 } from "lucide-react";
 import { categoryService } from "@/api/categoryService";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const CATEGORY_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', '#f97316',
   '#eab308', '#22c55e', '#10b981', '#06b6d4', '#3b82f6'
 ];
+
+// Sortable Category Item Component
+function SortableCategoryItem({ category, onEdit, onDelete }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category._id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 ${
+        isDragging ? 'shadow-lg' : ''
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded"
+        >
+          <GripVertical className="w-4 h-4 text-gray-400" />
+        </div>
+        <div
+          className="w-4 h-4 rounded-full"
+          style={{ backgroundColor: category.color }}
+        />
+        <div>
+          <h4 className="font-medium">{category.displayName}</h4>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Badge variant="secondary" className="text-xs">
+              {category.name}
+            </Badge>
+            {category.description && (
+              <span>• {category.description}</span>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => onEdit(category)}
+        >
+          <Edit2 className="w-4 h-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => onDelete(category)}
+          className="text-red-600 hover:text-red-700"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function CategoryManagement({ onCategoriesChange }) {
   const [categories, setCategories] = useState([]);
@@ -32,6 +121,8 @@ export default function CategoryManagement({ onCategoriesChange }) {
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     displayName: "",
@@ -39,6 +130,13 @@ export default function CategoryManagement({ onCategoriesChange }) {
     color: "#6366f1",
     icon: ""
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     loadCategories();
@@ -168,6 +266,55 @@ export default function CategoryManagement({ onCategoriesChange }) {
     setError("");
   };
 
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setCategories((items) => {
+        const oldIndex = items.findIndex((item) => item._id === active.id);
+        const newIndex = items.findIndex((item) => item._id === over.id);
+        
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        
+        // Update sortOrder for all items
+        const updatedItems = newItems.map((item, index) => ({
+          ...item,
+          sortOrder: index + 1
+        }));
+        
+        setHasUnsavedChanges(true);
+        return updatedItems;
+      });
+    }
+  };
+
+  const handleSaveOrder = async () => {
+    try {
+      setIsSavingOrder(true);
+      setError("");
+
+      const categoryOrders = categories.map((category, index) => ({
+        id: category._id,
+        sortOrder: index + 1
+      }));
+
+      const response = await categoryService.reorder(categoryOrders);
+      
+      if (response.success) {
+        setHasUnsavedChanges(false);
+        // Reload categories to get the updated order from server
+        await loadCategories();
+      } else {
+        throw new Error(response.message || "Failed to save category order");
+      }
+    } catch (error) {
+      console.error("Error saving category order:", error);
+      setError(error.message || "Failed to save category order");
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -188,16 +335,31 @@ export default function CategoryManagement({ onCategoriesChange }) {
           <div>
             <CardTitle>Category Management</CardTitle>
             <p className="text-sm text-gray-600 mt-1">
-              Manage your menu categories. Categories help organize your menu items.
+              Manage your menu categories. Drag and drop to reorder, then save changes.
             </p>
           </div>
-          <Dialog open={showForm} onOpenChange={setShowForm}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setShowForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Category
+          <div className="flex items-center gap-2">
+            {hasUnsavedChanges && (
+              <Button
+                onClick={handleSaveOrder}
+                disabled={isSavingOrder}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isSavingOrder ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4 mr-2" />
+                )}
+                Save Order
               </Button>
-            </DialogTrigger>
+            )}
+            <Dialog open={showForm} onOpenChange={setShowForm}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setShowForm(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Category
+                </Button>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>
@@ -291,6 +453,7 @@ export default function CategoryManagement({ onCategoriesChange }) {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
       </CardHeader>
 
@@ -314,50 +477,27 @@ export default function CategoryManagement({ onCategoriesChange }) {
             </Button>
           </div>
         ) : (
-          <div className="grid gap-3">
-            {categories.map((category) => (
-              <div
-                key={category._id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-              >
-                <div className="flex items-center gap-3">
-                  <GripVertical className="w-4 h-4 text-gray-400" />
-                  <div
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: category.color }}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={categories.map(category => category._id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="grid gap-3">
+                {categories.map((category) => (
+                  <SortableCategoryItem
+                    key={category._id}
+                    category={category}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                   />
-                  <div>
-                    <h4 className="font-medium">{category.displayName}</h4>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Badge variant="secondary" className="text-xs">
-                        {category.name}
-                      </Badge>
-                      {category.description && (
-                        <span>• {category.description}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleEdit(category)}
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDelete(category)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </CardContent>
     </Card>
