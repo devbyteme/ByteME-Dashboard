@@ -6,12 +6,6 @@ ARG NODE_VERSION=22.13.1
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-# Accept build-time args
-# ARG VITE_API_BASE_URL
-# ARG NEXTAUTH_URL
-# Pass them as env so Vite can access at build time
-# ENV VITE_API_BASE_URL=api.usebyteme.com
-# ENV NEXTAUTH_URL=https://usebyteme.com
 
 # Install dependencies including devDependencies
 COPY --link package.json package-lock.json ./
@@ -44,5 +38,3 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
-
-
