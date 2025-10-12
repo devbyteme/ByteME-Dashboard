@@ -18,6 +18,7 @@ import {
   X
 } from "lucide-react";
 import { MenuItem, Order, customerAuthService } from "@/api";
+import { customerCategoryService } from "@/api/customerCategoryService";
 import ByteMeLogo from "../components/ByteMeLogo";
 
 export default function CustomerMenu() {
@@ -34,6 +35,7 @@ export default function CustomerMenu() {
   const [menuItems, setMenuItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [cart, setCart] = useState([]);
+  const [categories, setCategories] = useState([]);
   
   // Debug: Log cart changes
   useEffect(() => {
@@ -150,6 +152,13 @@ export default function CustomerMenu() {
     }
   }, [vendorId]);
 
+  // Load categories after menu items are loaded
+  useEffect(() => {
+    if (menuItems.length > 0) {
+      loadCategories();
+    }
+  }, [menuItems]);
+
   // Filter menu items when search or category changes
   useEffect(() => {
     filterMenuItems();
@@ -243,6 +252,45 @@ export default function CustomerMenu() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const response = await customerCategoryService.getCategoriesByVendor(vendorId);
+      
+      if (response.success) {
+        // Filter categories to only include those that have menu items
+        const categoriesWithItems = response.data.filter(category => {
+          return menuItems.some(item => item.category === category.name);
+        });
+        
+        // Convert categories to the format expected by the UI
+        const categoryList = categoriesWithItems.map(category => category.name);
+        setCategories(["all", ...categoryList]);
+      } else {
+        console.error("Failed to load categories:", response.message);
+        // Fallback to generating categories from menu items
+        generateCategoriesFromMenuItems();
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+      // Fallback to generating categories from menu items
+      generateCategoriesFromMenuItems();
+    }
+  };
+
+  const generateCategoriesFromMenuItems = () => {
+    if (!menuItems || menuItems.length === 0) {
+      setCategories(["all"]);
+      return;
+    }
+    
+    // Extract unique categories from menu items
+    const uniqueCategories = [...new Set(menuItems.map(item => item.category).filter(Boolean))];
+    
+    // Sort categories alphabetically and add "all" at the beginning
+    const sortedCategories = uniqueCategories.sort();
+    setCategories(["all", ...sortedCategories]);
   };
 
   const filterMenuItems = () => {
@@ -403,18 +451,11 @@ export default function CustomerMenu() {
     navigate(`/customer-auth?restaurant=${vendorId}&table=${tableNumber}`);
   };
 
-  // Generate categories dynamically from menu items
-  const categories = React.useMemo(() => {
-    if (!menuItems || menuItems.length === 0) {
-      return ["all"];
+  // Update categories when menu items change (fallback)
+  useEffect(() => {
+    if (categories.length === 0 && menuItems.length > 0) {
+      generateCategoriesFromMenuItems();
     }
-    
-    // Extract unique categories from menu items
-    const uniqueCategories = [...new Set(menuItems.map(item => item.category).filter(Boolean))];
-    
-    // Sort categories alphabetically and add "all" at the beginning
-    const sortedCategories = uniqueCategories.sort();
-    return ["all", ...sortedCategories];
   }, [menuItems]);
 
   if (isLoading) {
