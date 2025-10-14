@@ -17,9 +17,10 @@ import {
   AlertCircle,
   X
 } from "lucide-react";
-import { MenuItem, Order, customerAuthService } from "@/api";
+import { MenuItem, Order, customerAuthService, vendorService } from "@/api";
 import { customerCategoryService } from "@/api/customerCategoryService";
 import ByteMeLogo from "../components/ByteMeLogo";
+import ByteMeFooter from "../components/ByteMeFooter";
 
 export default function CustomerMenu() {
   const [searchParams] = useSearchParams();
@@ -50,6 +51,7 @@ export default function CustomerMenu() {
   const [error, setError] = useState("");
   const [authError, setAuthError] = useState("");
   const [isCartLoaded, setIsCartLoaded] = useState(false);
+  const [vendorInfo, setVendorInfo] = useState(null);
 
   // Check authentication and load data
   useEffect(() => {
@@ -149,6 +151,7 @@ export default function CustomerMenu() {
   useEffect(() => {
     if (vendorId) {
       loadMenuItems();
+      loadVendorInfo();
     }
   }, [vendorId]);
 
@@ -251,6 +254,17 @@ export default function CustomerMenu() {
       setError("Failed to load menu items");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadVendorInfo = async () => {
+    try {
+      const response = await vendorService.getById(vendorId);
+      if (response.success) {
+        setVendorInfo(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading vendor info:", error);
     }
   };
 
@@ -506,7 +520,7 @@ export default function CustomerMenu() {
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo and Restaurant Info */}
             <div className="flex items-center gap-2 sm:gap-3">
-            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 h-10" />
+              <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
               <div>
                 <p className="text-xs sm:text-sm text-brand-dark/70">Table {tableNumber}</p>
               </div>
@@ -722,6 +736,8 @@ export default function CustomerMenu() {
         </div>
       )}
 
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Crown, ArrowRight, Loader2, CheckCircle, AlertCircle, User, LogIn, User
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User as UserAPI } from "@/api";
+import ByteMeFooter from "../components/ByteMeFooter";
 
 export default function UserRegistration() {
   const navigate = useNavigate();
@@ -123,6 +124,9 @@ export default function UserRegistration() {
           </p>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-800 mx-auto"></div>
         </div>
+        
+        {/* Footer */}
+        <ByteMeFooter />
       </div>
     );
   }
@@ -382,6 +386,9 @@ export default function UserRegistration() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 } 

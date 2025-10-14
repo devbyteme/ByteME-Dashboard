@@ -7,6 +7,7 @@ import { Crown, LogIn, Loader2, AlertCircle, UserCheck, ArrowRight } from "lucid
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User as UserAPI } from "@/api";
+import ByteMeFooter from "../components/ByteMeFooter";
 
 export default function UserLogin() {
   const navigate = useNavigate();
@@ -218,6 +219,9 @@ export default function UserLogin() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 } 

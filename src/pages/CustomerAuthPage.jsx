@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { customerAuthService, vendorService } from "@/api";
+import ByteMeFooter from "../components/ByteMeFooter";
 // Use the configured API base URL for backend-origin redirects
 
 export default function CustomerAuthPage() {
@@ -229,8 +230,9 @@ export default function CustomerAuthPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-brand-secondary to-brand-white">
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md">
         {/* Back Button */}
         {vendorId && tableNumber && (
           <button
@@ -246,13 +248,17 @@ export default function CustomerAuthPage() {
         
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-6">
-            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
+          {/* Logo Section - ByteMe and Vendor logos inline */}
+          <div className="flex items-center justify-center gap-3 sm:gap-4 mb-6">
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-16 sm:w-20 aspect-[551/371] object-contain" />
+            {vendorInfo && vendorInfo.logo && (
+              <img src={vendorInfo.logo} alt={`${vendorInfo.name} Logo`} className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover" />
+            )}
           </div>
           
           {vendorId && tableNumber && (
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-brand-dark mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-brand-dark mb-2">
                 {vendorLoading ? (
                   "Welcome"
                 ) : vendorInfo && vendorInfo.name ? (
@@ -531,7 +537,11 @@ export default function CustomerAuthPage() {
             </Tabs>
           </CardContent>
         </Card>
+        </div>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 }

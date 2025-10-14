@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ByteMeLogo from '../components/ByteMeLogo';
+import ByteMeFooter from '../components/ByteMeFooter';
 
 const CustomerForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -68,11 +69,12 @@ const CustomerForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-secondary to-white flex items-center justify-center px-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-brand-secondary to-white flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-4">
+        <div className="max-w-md w-full space-y-8">
         {/* Logo */}
         <div className="text-center">
-        <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-40 h-20" />
+        <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
           <h2 className="mt-6 text-3xl font-bold text-brand-dark">
             Forgot Password
           </h2>
@@ -161,7 +163,11 @@ const CustomerForgotPassword = () => {
             </Link>
           </div>
         </div>
+        </div>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 };

@@ -374,11 +374,11 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
                       type="url"
                       value={imageLink}
                       onChange={handleImageLinkChange}
-                      placeholder="Paste image URL (Google Drive, Imgur, etc.)"
+                      placeholder="Paste image URL (web url)"
                       disabled={isSaving}
                     />
                     <p className="text-sm text-gray-500">
-                      Supports Google Drive, Imgur, and direct image links
+                      Supports direct image web urls
                     </p>
                   </div>
                 )}

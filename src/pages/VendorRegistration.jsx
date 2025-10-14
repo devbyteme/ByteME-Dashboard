@@ -7,6 +7,7 @@ import { Crown, ArrowRight, Loader2, CheckCircle, AlertCircle } from "lucide-rea
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api";
+import ByteMeFooter from "../components/ByteMeFooter";
 
 export default function VendorRegistration() {
   const navigate = useNavigate();
@@ -103,6 +104,9 @@ export default function VendorRegistration() {
             </p>
           </div>
         </div>
+        
+        {/* Footer */}
+        <ByteMeFooter />
       </div>
     );
   }
@@ -113,7 +117,7 @@ export default function VendorRegistration() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <Link to={createPageUrl("Welcome")} className="flex items-center gap-3 text-brand-dark">
-            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-28 h-16" />
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
           </Link>
         </div>
         
@@ -286,6 +290,9 @@ export default function VendorRegistration() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 }

@@ -214,7 +214,19 @@ class AuthService {
   // Update vendor profile (restaurant information)
   async updateVendorProfile(vendorData) {
     try {
-      const response = await api.put('/vendors/profile', vendorData);
+      let response;
+      
+      // Check if vendorData is FormData (for file upload)
+      if (vendorData instanceof FormData) {
+        response = await api.put('/vendors/profile', vendorData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        // Regular JSON data
+        response = await api.put('/vendors/profile', vendorData);
+      }
       
       if (response.success) {
         // Update stored user data with vendor information

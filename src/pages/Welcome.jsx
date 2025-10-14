@@ -9,7 +9,7 @@ export default function Welcome() {
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
       <div className="text-center max-w-4xl mx-auto">
         <div className="w-36 h-24 rounded-2xl flex items-center justify-center shadow-2xl mx-auto mb-6">
-          <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-24 h-16" />
+          <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-brand-dark">
           Welcome to ByteMe

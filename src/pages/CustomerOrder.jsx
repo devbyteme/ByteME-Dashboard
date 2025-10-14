@@ -11,6 +11,7 @@ import { menuService, orderService } from "@/api";
 import CustomerMenuItemCard from "../components/customer/CustomerMenuItemCard";
 import FloatingCart from "../components/customer/FloatingCart";
 import CustomerCheckout from "../components/customer/CustomerCheckout";
+import ByteMeFooter from "../components/ByteMeFooter";
 
 // Order progress tracking component
 const OrderProgress = ({ order }) => {
@@ -430,6 +431,9 @@ export default function CustomerOrder() {
           onSuccess={handleOrderSuccess}
         />
         )}
+        
+        {/* Footer */}
+        <ByteMeFooter />
     </div>
   );
 }
