@@ -197,7 +197,7 @@ export default function Layout({ children, currentPageName }) {
         <Sidebar className="border-r border-slate-200 bg-white/95 backdrop-blur-sm">
           <SidebarHeader className="border-b border-slate-200 p-6">
             <div className="flex items-center gap-3">
-            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 h-10" />
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
               <div>
                 <h2 className="font-bold text-brand-dark text-lg">ByteMe</h2>
                 <p className="text-xs text-brand-dark/70">Digital Dining Solutions</p>

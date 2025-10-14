@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import ByteMeLogo from '../components/ByteMeLogo';
+import ByteMeFooter from '../components/ByteMeFooter';
 
 const CustomerResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -249,6 +250,9 @@ const CustomerResetPassword = () => {
           </button>
         </div>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 };

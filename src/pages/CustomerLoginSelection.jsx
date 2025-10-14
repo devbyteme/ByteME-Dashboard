@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Mail, UserCircle, Loader2, Crown } from 'lucide-react';
 import { vendorService } from '@/api';
 import ByteMeLogo from '@/components/ByteMeLogo';
+import ByteMeFooter from '@/components/ByteMeFooter';
 
 export default function CustomerLoginSelection() {
   const navigate = useNavigate();
@@ -74,17 +75,22 @@ export default function CustomerLoginSelection() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-brand-secondary to-brand-white">
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="flex justify-center">
-           <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-32 h-16" />
+          {/* Logo Section - ByteMe and Vendor logos inline */}
+          <div className="flex items-center justify-center gap-3 sm:gap-4">
+            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-16 sm:w-20 aspect-[551/371] object-contain" />
+            {vendorInfo && vendorInfo.logo && (
+              <img src={vendorInfo.logo} alt={`${vendorInfo.name} Logo`} className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover" />
+            )}
           </div>
           
           {vendorInfo && (
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-brand-dark">
+              <h1 className="text-2xl sm:text-3xl font-bold text-brand-dark">
                 Welcome to {vendorInfo.name}
               </h1>
               <div className="flex items-center justify-center gap-2 text-brand-dark/70">
@@ -154,7 +160,11 @@ export default function CustomerLoginSelection() {
 
          
         </div>
+        </div>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 }

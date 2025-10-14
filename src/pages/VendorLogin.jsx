@@ -7,6 +7,7 @@ import { Crown, ArrowRight, Loader2, CheckCircle, AlertCircle, Mail, Lock, Chrom
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { authService } from "@/api";
+import ByteMeFooter from "../components/ByteMeFooter";
 
 export default function VendorLogin() {
   const navigate = useNavigate();
@@ -127,8 +128,9 @@ export default function VendorLogin() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-secondary to-brand-white p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-brand-secondary to-brand-white">
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md">
 
         {success && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg">
@@ -151,7 +153,7 @@ export default function VendorLogin() {
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="text-center space-y-3">
             <div className="flex items-center justify-center">
-              <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-28 h-16" />
+              <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
             </div>
             <CardTitle className="text-2xl font-bold text-brand-dark">Welcome back</CardTitle>
             <CardDescription className="text-brand-dark/70">
@@ -254,7 +256,11 @@ export default function VendorLogin() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 }

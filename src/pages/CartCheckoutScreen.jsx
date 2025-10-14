@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { orderService, authService } from "@/api";
 import ByteMeLogo from "../components/ByteMeLogo";
+import ByteMeFooter from "../components/ByteMeFooter";
 
 export default function CartCheckoutScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -298,7 +299,7 @@ export default function CartCheckoutScreen() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div className="flex items-center gap-3">
-                <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-8 h-8" />
+                <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
                 <div>
                   <h1 className="text-lg font-semibold text-brand-dark">
                     {vendorInfo?.name || 'Restaurant'}
@@ -579,6 +580,9 @@ export default function CartCheckoutScreen() {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <ByteMeFooter />
     </div>
   );
 }
