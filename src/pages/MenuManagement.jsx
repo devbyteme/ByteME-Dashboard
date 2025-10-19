@@ -236,26 +236,28 @@ export default function MenuManagement() {
     }
   };
 
-  const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (item.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-    const isVisible = matchesSearch && matchesCategory;
-    
-    // Debug logging for newly created items
-    if (item._id && item.createdAt && new Date(item.createdAt) > new Date(Date.now() - 60000)) {
-      console.log("Recently created item filtering:", {
-        item: item.name,
-        category: item.category,
-        selectedCategory,
-        matchesSearch,
-        matchesCategory,
-        isVisible
-      });
-    }
-    
-    return isVisible;
-  });
+  const filteredItems = menuItems
+    .filter(item => {
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (item.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
+      const isVisible = matchesSearch && matchesCategory;
+      
+      // Debug logging for newly created items
+      if (item._id && item.createdAt && new Date(item.createdAt) > new Date(Date.now() - 60000)) {
+        console.log("Recently created item filtering:", {
+          item: item.name,
+          category: item.category,
+          selectedCategory,
+          matchesSearch,
+          matchesCategory,
+          isVisible
+        });
+      }
+      
+      return isVisible;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   // Create category options for filtering (including "all" option)
   const categoryOptions = [
