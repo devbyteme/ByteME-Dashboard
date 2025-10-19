@@ -37,6 +37,7 @@ export default function CustomerMenu() {
   const [filteredItems, setFilteredItems] = useState([]);
   const [cart, setCart] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoryObjects, setCategoryObjects] = useState([]);
   
   // Debug: Log cart changes
   useEffect(() => {
@@ -278,7 +279,10 @@ export default function CustomerMenu() {
           return menuItems.some(item => item.category === category.name);
         });
         
-        // Convert categories to the format expected by the UI
+        // Store full category objects for display
+        setCategoryObjects(categoriesWithItems);
+        
+        // Convert categories to the format expected by the UI (using names for filtering)
         const categoryList = categoriesWithItems.map(category => category.name);
         setCategories(["all", ...categoryList]);
       } else {
@@ -296,6 +300,7 @@ export default function CustomerMenu() {
   const generateCategoriesFromMenuItems = () => {
     if (!menuItems || menuItems.length === 0) {
       setCategories(["all"]);
+      setCategoryObjects([]);
       return;
     }
     
@@ -305,6 +310,21 @@ export default function CustomerMenu() {
     // Sort categories alphabetically and add "all" at the beginning
     const sortedCategories = uniqueCategories.sort();
     setCategories(["all", ...sortedCategories]);
+    
+    // Create category objects with displayName same as name for fallback
+    const fallbackCategoryObjects = sortedCategories.map(name => ({
+      name: name,
+      displayName: name
+    }));
+    setCategoryObjects(fallbackCategoryObjects);
+  };
+
+  // Helper function to get display name for a category
+  const getCategoryDisplayName = (categoryName) => {
+    if (categoryName === "all") return "All";
+    
+    const categoryObj = categoryObjects.find(cat => cat.name === categoryName);
+    return categoryObj ? categoryObj.displayName : categoryName;
   };
 
   const filterMenuItems = () => {
@@ -322,6 +342,9 @@ export default function CustomerMenu() {
     if (selectedCategory !== "all") {
       filtered = filtered.filter(item => item.category === selectedCategory);
     }
+
+    // Sort alphabetically by name
+    filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
 
     setFilteredItems(filtered);
   };
@@ -605,13 +628,13 @@ export default function CustomerMenu() {
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  className={`capitalize whitespace-nowrap px-4 py-2 h-10 flex-shrink-0 transition-all duration-200 ${
+                  className={`whitespace-nowrap px-4 py-2 h-10 flex-shrink-0 transition-all duration-200 ${
                     selectedCategory === category 
                       ? 'bg-brand-primary text-brand-white shadow-md border-brand-primary' 
                       : 'bg-brand-white text-brand-dark border-slate-300 hover:bg-brand-primary/5 hover:border-brand-primary/30'
                   }`}
                 >
-                  {category}
+                  {getCategoryDisplayName(category)}
                 </Button>
               ))}
             </div>
