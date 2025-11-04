@@ -9,7 +9,7 @@ const ByteMeFooter = ({ className = "" }) => {
           <img
             src="/Secondary Logo_ByteMe.png"
             alt="ByteMe Logo"
-            className="w-28"
+            className="w-16 mt-1"
           />
         </div>
       </div>
