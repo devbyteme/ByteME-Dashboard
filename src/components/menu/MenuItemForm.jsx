@@ -221,7 +221,6 @@ export default function MenuItemForm({ item, onSave, onCancel, isSaving = false 
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               placeholder="Describe the dish..."
               rows={3}
-              required
               disabled={isSaving}
             />
           </div>
