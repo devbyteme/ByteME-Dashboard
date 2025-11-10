@@ -186,6 +186,7 @@ export default function MenuManagement() {
   const handleEditItem = (item) => {
     setEditingItem(item);
     setShowForm(true);
+    handleScroll();
   };
 
   const handleToggleAvailability = async (itemToToggle) => {
@@ -233,6 +234,13 @@ export default function MenuManagement() {
     const categoryExists = updatedCategories.some(cat => cat.name === selectedCategory);
     if (selectedCategory !== "all" && !categoryExists) {
       setSelectedCategory("all");
+    }
+  };
+
+  const handleScroll = () => {
+    const section = document.getElementById("Menu_Item");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
     }
   };
 
