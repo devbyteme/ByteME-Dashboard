@@ -299,7 +299,10 @@ export default function CartCheckoutScreen() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div className="flex items-center gap-3">
-                <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
+                {/* <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" /> */}
+                {vendorInfo && vendorInfo.logo && (
+                  <img src={vendorInfo.logo} alt={`${vendorInfo.name} Logo`} className="w-12 h-12 sm:w-11 sm:h-11 rounded-lg object-cover" />
+                )}
                 <div>
                   <h1 className="text-lg font-semibold text-brand-dark">
                     {vendorInfo?.name || 'Restaurant'}
