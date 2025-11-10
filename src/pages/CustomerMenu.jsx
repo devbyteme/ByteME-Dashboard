@@ -543,7 +543,10 @@ export default function CustomerMenu() {
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo and Restaurant Info */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" />
+              {/* <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-20 aspect-[551/371] object-contain" /> */}
+              {vendorInfo && vendorInfo.logo && (
+                <img src={vendorInfo.logo} alt={`${vendorInfo.name} Logo`} className="w-12 h-12 sm:w-11 sm:h-11 rounded-lg object-cover" />
+              )}
               <div>
                 <p className="text-xs sm:text-sm text-brand-dark/70">Table {tableNumber}</p>
               </div>

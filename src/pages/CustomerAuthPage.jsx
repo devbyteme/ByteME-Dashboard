@@ -250,7 +250,7 @@ export default function CustomerAuthPage() {
         <div className="text-center mb-8">
           {/* Logo Section - ByteMe and Vendor logos inline */}
           <div className="flex items-center justify-center gap-3 sm:gap-4 mb-6">
-            <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-16 sm:w-20 aspect-[551/371] object-contain" />
+            {/* <img src="/Main Logo_ByteMe.png" alt="ByteMe Logo" className="w-16 sm:w-20 aspect-[551/371] object-contain" /> */}
             {vendorInfo && vendorInfo.logo && (
               <img src={vendorInfo.logo} alt={`${vendorInfo.name} Logo`} className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover" />
             )}
