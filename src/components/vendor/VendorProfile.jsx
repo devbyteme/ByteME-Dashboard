@@ -296,6 +296,15 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
     }
   };
 
+  useEffect(() => {
+    if (success || error) {
+      const section = document.getElementById("Alert");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [success, error]);
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -333,21 +342,25 @@ const VendorProfile = ({ user, onProfileUpdate }) => {
 
           {/* Success/Error Messages */}
           {success && (
-            <Alert className="mt-4 border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                {success}
-              </AlertDescription>
-            </Alert>
+            <section id="Alert">
+              <Alert className="mt-4 border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  {success}
+                </AlertDescription>
+              </Alert>
+            </section>
           )}
 
           {error && (
-            <Alert className="mt-4 border-red-200 bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">
-                {error}
-              </AlertDescription>
-            </Alert>
+            <section id="Alert">
+              <Alert className="mt-4 border-red-200 bg-red-50" id="Alert">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-800">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            </section>
           )}
 
           {/* Personal Information Tab */}
