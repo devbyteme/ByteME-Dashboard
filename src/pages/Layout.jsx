@@ -238,9 +238,15 @@ export default function Layout({ children, currentPageName }) {
             <div className="space-y-3">
               {/* User Info */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center">
-                  <UserIcon className="w-5 h-5 text-white" />
-                </div>
+                {user.logo?(
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center">
+                    <img src={user.logo} className="w-10 h-10"/>
+                  </div>
+                ):(
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center">
+                    <UserIcon className="w-5 h-5 text-white" />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-slate-900 text-sm truncate">
                     {user?.name || user?.restaurantName || 'Vendor'}
