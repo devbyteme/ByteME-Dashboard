@@ -26,7 +26,7 @@ export default function CustomerLoginSelection() {
           if (response.success) {
             setVendorInfo(response.data);
           }
-          const tableInforesponse = await tableService.getByNumber(tableNumber);
+          const tableInforesponse = await tableService.getByNumber(tableNumber,vendorId);
           if(tableInforesponse.success){
             setTableInfo(tableInforesponse.data);
           }

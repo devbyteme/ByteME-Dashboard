@@ -68,11 +68,11 @@ export default function CustomerMenu() {
       loadTableData();
 
     }
-  },[tableNumber]);
+  },[tableNumber,vendorId]);
 
   const loadTableData = async () =>{
     try {
-    const tableInforesponse = await tableService.getByNumber(tableNumber);
+    const tableInforesponse = await tableService.getByNumber(tableNumber,vendorId);
     if(tableInforesponse.success){
       setTableInfo(tableInforesponse.data);
     }

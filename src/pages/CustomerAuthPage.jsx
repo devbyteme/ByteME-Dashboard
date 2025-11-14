@@ -94,12 +94,12 @@ export default function CustomerAuthPage() {
     if(tableNumber){
       loadTableData();
     }
-  },[tableNumber]);
+  },[tableNumber,vendorId]);
     
   const loadTableData = async () =>{
     try {
       console.log("did you run")
-      const tableInforesponse = await tableService.getByNumber(tableNumber);
+      const tableInforesponse = await tableService.getByNumber(tableNumber,vendorId);
       console.log("tableInforesponse",tableInforesponse)
       if(tableInforesponse.success){
         setTableInfo(tableInforesponse.data);

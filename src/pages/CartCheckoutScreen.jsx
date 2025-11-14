@@ -105,12 +105,11 @@ export default function CartCheckoutScreen() {
     if(tableNumber){
       loadTableData();
     }
-  },[tableNumber]);
+  },[tableNumber,vendorId]);
   
   const loadTableData = async () =>{
     try {
-      console.log("did you run")
-      const tableInforesponse = await tableService.getByNumber(tableNumber);
+      const tableInforesponse = await tableService.getByNumber(tableNumber,vendorId);
       if(tableInforesponse.success){
         setTableInfo(tableInforesponse.data);
       }
