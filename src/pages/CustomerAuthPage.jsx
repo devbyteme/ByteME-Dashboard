@@ -19,7 +19,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { customerAuthService, vendorService } from "@/api";
+import { customerAuthService, tableService, vendorService } from "@/api";
 import ByteMeFooter from "../components/ByteMeFooter";
 // Use the configured API base URL for backend-origin redirects
 
@@ -37,6 +37,7 @@ export default function CustomerAuthPage() {
   const [success, setSuccess] = useState("");
   const [vendorInfo, setVendorInfo] = useState(null);
   const [vendorLoading, setVendorLoading] = useState(false);
+  const [tableInfo,setTableInfo] = useState(null);
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -88,6 +89,25 @@ export default function CustomerAuthPage() {
 
     fetchVendorInfo();
   }, [vendorId]);
+
+  useEffect (()=>{
+    if(tableNumber){
+      loadTableData();
+    }
+  },[tableNumber]);
+    
+  const loadTableData = async () =>{
+    try {
+      console.log("did you run")
+      const tableInforesponse = await tableService.getByNumber(tableNumber);
+      console.log("tableInforesponse",tableInforesponse)
+      if(tableInforesponse.success){
+        setTableInfo(tableInforesponse.data);
+      }
+    }catch (error) {
+      console.error('Error fetching table info:', error);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -270,6 +290,15 @@ export default function CustomerAuthPage() {
               <div className="flex items-center justify-center gap-2">
                 <Badge variant="outline" className="text-brand-primary border-brand-primary">
                   Table {tableNumber}
+                  
+                  {
+                    tableInfo && tableInfo.location && (
+                      <span>
+                       {" - " + tableInfo.location}
+                      </span>
+                    )
+                  }
+                  
                 </Badge>
               </div>
             </div>

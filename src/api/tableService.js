@@ -33,7 +33,7 @@ export const tableService = {
 
   // Get table by number
   async getByNumber(number) {
-    return api.get(`/tables?number=${number}`);
+    return api.get(`/table/${number}`);
   },
 
   // Update table status

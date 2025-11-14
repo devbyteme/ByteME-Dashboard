@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Mail, UserCircle, Loader2, Crown } from 'lucide-react';
-import { vendorService } from '@/api';
+import { tableService, vendorService } from '@/api';
 import ByteMeLogo from '@/components/ByteMeLogo';
 import ByteMeFooter from '@/components/ByteMeFooter';
 
@@ -12,7 +12,8 @@ export default function CustomerLoginSelection() {
   const [searchParams] = useSearchParams();
   const [vendorInfo, setVendorInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [tableInfo,setTableInfo] = useState(null);
+
   const vendorId = searchParams.get('restaurant');
   const tableNumber = searchParams.get('table');
 
@@ -25,8 +26,12 @@ export default function CustomerLoginSelection() {
           if (response.success) {
             setVendorInfo(response.data);
           }
+          const tableInforesponse = await tableService.getByNumber(tableNumber);
+          if(tableInforesponse.success){
+            setTableInfo(tableInforesponse.data);
+          }
         } catch (error) {
-          console.error('Error fetching vendor info:', error);
+          console.error('Error fetching vendor or table info:', error);
         } finally {
           setIsLoading(false);
         }
@@ -95,6 +100,10 @@ export default function CustomerLoginSelection() {
               </h1>
               <div className="flex items-center justify-center gap-2 text-brand-dark/70">
                 <p className="text-sm">Table {tableNumber}</p>
+                {tableInfo && tableInfo.location && (
+                    <p className="text-sm"> - {tableInfo.location}</p>
+                  )
+                }
               </div>
             </div>
           )}
