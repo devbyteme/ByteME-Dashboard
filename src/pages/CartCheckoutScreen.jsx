@@ -18,7 +18,7 @@ import {
   Banknote,
   X
 } from "lucide-react";
-import { orderService, authService } from "@/api";
+import { orderService, authService, tableService } from "@/api";
 import ByteMeLogo from "../components/ByteMeLogo";
 import ByteMeFooter from "../components/ByteMeFooter";
 
@@ -57,6 +57,7 @@ export default function CartCheckoutScreen() {
     taxRate: 0,
     serviceChargeRate: 0
   });
+  const [tableInfo,setTableInfo] = useState(null);
 
   // Parse cart data on component mount
   useEffect(() => {
@@ -100,6 +101,23 @@ export default function CartCheckoutScreen() {
     }
   }, [cartData, vendorId, tableNumber]);
 
+  useEffect (()=>{
+    if(tableNumber){
+      loadTableData();
+    }
+  },[tableNumber,vendorId]);
+  
+  const loadTableData = async () =>{
+    try {
+      const tableInforesponse = await tableService.getByNumber(tableNumber,vendorId);
+      if(tableInforesponse.success){
+        setTableInfo(tableInforesponse.data);
+      }
+    }catch (error) {
+      console.error('Error fetching table info:', error);
+    }
+  };
+  
   // Load user and vendor data
   useEffect(() => {
     const loadUserData = () => {
@@ -308,6 +326,11 @@ export default function CartCheckoutScreen() {
                     {vendorInfo?.name || 'Restaurant'}
                   </h1>
                   <p className="text-sm text-brand-dark/70">Table {tableNumber}</p>
+                  {
+                    tableInfo && tableInfo.location && (
+                      <p className="text-sm text-brand-dark/70"> {tableInfo.location}</p>
+                    )
+                  }
                 </div>
               </div>
             </div>

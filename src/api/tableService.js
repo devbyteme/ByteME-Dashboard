@@ -32,8 +32,8 @@ export const tableService = {
   },
 
   // Get table by number
-  async getByNumber(number) {
-    return api.get(`/tables?number=${number}`);
+  async getByNumber(number,venderID) {
+    return api.get(`/table/${number}/${venderID}`);
   },
 
   // Update table status

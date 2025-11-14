@@ -17,7 +17,7 @@ import {
   AlertCircle,
   X
 } from "lucide-react";
-import { MenuItem, Order, customerAuthService, vendorService } from "@/api";
+import { MenuItem, Order, customerAuthService, tableService, vendorService } from "@/api";
 import { customerCategoryService } from "@/api/customerCategoryService";
 import ByteMeLogo from "../components/ByteMeLogo";
 import ByteMeFooter from "../components/ByteMeFooter";
@@ -53,6 +53,7 @@ export default function CustomerMenu() {
   const [authError, setAuthError] = useState("");
   const [isCartLoaded, setIsCartLoaded] = useState(false);
   const [vendorInfo, setVendorInfo] = useState(null);
+  const [tableInfo,setTableInfo] = useState(null);
 
   // Check authentication and load data
   useEffect(() => {
@@ -61,6 +62,24 @@ export default function CustomerMenu() {
       loadCartFromStorage();
     }
   }, [vendorId, tableNumber]);
+
+  useEffect (()=>{
+    if(tableNumber){
+      loadTableData();
+
+    }
+  },[tableNumber,vendorId]);
+
+  const loadTableData = async () =>{
+    try {
+    const tableInforesponse = await tableService.getByNumber(tableNumber,vendorId);
+    if(tableInforesponse.success){
+      setTableInfo(tableInforesponse.data);
+    }
+    }catch (error) {
+      console.error('Error fetching table info:', error);
+    }
+  };
 
   // Load cart from localStorage or URL
   const loadCartFromStorage = () => {
@@ -549,6 +568,11 @@ export default function CustomerMenu() {
               )}
               <div>
                 <p className="text-xs sm:text-sm text-brand-dark/70">Table {tableNumber}</p>
+                {
+                  tableInfo && tableInfo.location && (
+                    <p className="text-xs sm:text-sm text-brand-dark/70"> {tableInfo.location}</p>
+                  )
+                }
               </div>
             </div>
             

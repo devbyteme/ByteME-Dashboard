@@ -328,20 +328,21 @@ export default function QRGenerator() {
                   <Label htmlFor="table_number" className="text-slate-700">Table Number</Label>
                   <Input
                     id="table_number"
+                    type = "number"
                     value={newTable.table_number}
                     onChange={(e) => setNewTable({...newTable, table_number: e.target.value})}
-                    placeholder="e.g., T1, A5, Patio-3"
+                    placeholder="e.g.,1,2,3,4"
                     className="bg-white text-slate-900"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="location" className="text-slate-700">Location</Label>
+                  <Label htmlFor="location" className="text-slate-700">Table Name</Label>
                   <Input
                     id="location"
                     value={newTable.location}
                     onChange={(e) => setNewTable({...newTable, location: e.target.value})}
-                    placeholder="e.g., Window side, Patio"
+                    placeholder="e.g., T1, A5, Patio-3 "
                     className="bg-white text-slate-900"
                   />
                 </div>
